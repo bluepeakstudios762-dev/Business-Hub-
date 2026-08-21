@@ -1,0 +1,3174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Business Hub</title>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root{
+  --sidebar-bg:#14161a;
+  --sidebar-bg-soft:#1c1f25;
+  --sidebar-hover:#20232a;
+  --sidebar-text:#8b8f98;
+  --sidebar-text-active:#ffffff;
+  --sidebar-border:#24272e;
+
+  --bg:#f3f4f6;
+  --surface:#ffffff;
+  --surface-2:#fafafb;
+  --border:#e6e8eb;
+  --border-soft:#eef0f2;
+
+  --text-primary:#14161a;
+  --text-secondary:#6b7280;
+  --text-tertiary:#9aa0a9;
+  --on-dark:#ffffff;
+  --on-dark-soft:#a6abb5;
+
+  --positive:#15803d;
+  --positive-soft:#e9f7ee;
+  --negative:#c0242c;
+  --negative-soft:#fcebec;
+  --warning:#a5620a;
+  --warning-soft:#fbf1e2;
+  --info:#1d4ed8;
+  --info-soft:#eaf0fd;
+
+  --radius-sm:8px;
+  --radius-md:12px;
+  --radius-lg:18px;
+  --radius-pill:999px;
+
+  --shadow-xs:0 1px 2px rgba(16,20,24,0.04);
+  --shadow-sm:0 2px 6px rgba(16,20,24,0.05);
+  --shadow-md:0 8px 24px rgba(16,20,24,0.08);
+  --shadow-lg:0 16px 40px rgba(16,20,24,0.14);
+
+  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:"SF Mono",SFMono-Regular,Consolas,"Roboto Mono",Menlo,monospace;
+
+  --sidebar-w:236px;
+  --sidebar-w-collapsed:76px;
+  --topbar-h:64px;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:var(--font-sans);
+  background:var(--bg);
+  color:var(--text-primary);
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  overflow-x:hidden;
+}
+h1,h2,h3,h4,h5,p{margin:0;}
+button{font-family:inherit;}
+a{color:inherit;text-decoration:none;}
+::selection{background:#dbe4ff;}
+input,select,textarea{font-family:inherit;}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums;letter-spacing:-0.01em;}
+
+/* Scrollbars (desktop) */
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#d7dade;border-radius:8px;}
+
+/* Focus visibility */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid #2b6df6; outline-offset:2px; border-radius:6px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+
+/* ============================================================
+   APP SHELL / LAYOUT
+   ============================================================ */
+.shell{display:flex; min-height:100vh;}
+
+/* --- Sidebar --- */
+.sidebar{
+  width:var(--sidebar-w);
+  flex-shrink:0;
+  background:var(--sidebar-bg);
+  color:var(--sidebar-text);
+  display:flex;
+  flex-direction:column;
+  position:sticky;
+  top:0;
+  height:100vh;
+  z-index:40;
+  transition:width .18s var(--ease);
+}
+.sidebar-head{
+  display:flex; align-items:center; gap:10px;
+  padding:20px 20px 16px 20px;
+  white-space:nowrap; overflow:hidden;
+}
+.brand-mark{
+  width:32px;height:32px;border-radius:9px;flex-shrink:0;
+  background:linear-gradient(155deg,#fff,#c7c9cf 140%);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:14px;color:#111;
+}
+.brand-name{color:var(--sidebar-text-active);font-weight:600;font-size:15px;letter-spacing:-.01em;}
+.brand-sub{font-size:11px;color:var(--on-dark-soft);margin-top:1px;}
+
+.sidebar-nav{flex:1; padding:6px 12px; overflow-y:auto;}
+.nav-item{
+  display:flex; align-items:center; gap:12px;
+  padding:10px 12px; margin-bottom:2px;
+  border-radius:10px; cursor:pointer;
+  font-size:13.5px; font-weight:500;
+  color:var(--sidebar-text);
+  white-space:nowrap; overflow:hidden;
+  position:relative;
+  transition:background .12s var(--ease), color .12s var(--ease);
+}
+.nav-item svg{width:18px;height:18px;flex-shrink:0;opacity:.85;}
+.nav-item:hover{background:var(--sidebar-hover); color:var(--sidebar-text-active);}
+.nav-item.active{background:var(--sidebar-hover); color:var(--sidebar-text-active);}
+.nav-item.active::before{
+  content:""; position:absolute; left:-12px; top:8px; bottom:8px; width:3px;
+  background:#fff; border-radius:0 4px 4px 0;
+}
+.nav-label{overflow:hidden;text-overflow:ellipsis;}
+.nav-section-label{
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.08em;
+  color:#565a63; padding:14px 12px 6px; font-weight:600;
+}
+
+.sidebar-foot{
+  padding:14px; border-top:1px solid var(--sidebar-border);
+}
+.biz-chip{
+  display:flex; align-items:center; gap:10px; padding:8px 10px;
+  border-radius:10px; background:var(--sidebar-bg-soft); cursor:pointer;
+}
+.biz-avatar{
+  width:30px;height:30px;border-radius:8px;background:#3a3f49;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.biz-chip-text{overflow:hidden;}
+.biz-chip-name{font-size:12.5px;color:var(--sidebar-text-active);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.biz-chip-sub{font-size:11px;color:var(--on-dark-soft);}
+
+/* --- Main column --- */
+.main-col{flex:1; min-width:0; display:flex; flex-direction:column;}
+
+.topbar{
+  height:var(--topbar-h); flex-shrink:0;
+  display:flex; align-items:center; gap:14px;
+  padding:0 24px; background:rgba(243,244,246,.88);
+  backdrop-filter:blur(8px);
+  position:sticky; top:0; z-index:30;
+  border-bottom:1px solid var(--border-soft);
+}
+.menu-toggle{
+  display:none; width:36px;height:36px; border-radius:9px; border:1px solid var(--border);
+  background:var(--surface); align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+}
+.page-title{font-size:18px; font-weight:700; letter-spacing:-.01em;}
+.searchbar{
+  flex:1; max-width:420px; display:flex; align-items:center; gap:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-pill);
+  padding:8px 14px; color:var(--text-tertiary);
+}
+.searchbar input{border:none;outline:none;background:transparent;font-size:13.5px;flex:1;color:var(--text-primary);}
+.searchbar svg{width:16px;height:16px;flex-shrink:0;}
+.topbar-spacer{flex:1;}
+.topbar-actions{display:flex; align-items:center; gap:10px;}
+.icon-btn{
+  width:36px;height:36px;border-radius:10px;border:1px solid var(--border);
+  background:var(--surface); display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:var(--text-secondary); flex-shrink:0;
+  transition:background .12s var(--ease), border-color .12s var(--ease);
+}
+.icon-btn:hover{background:var(--surface-2); border-color:#d8dbdf;}
+.icon-btn svg{width:17px;height:17px;}
+
+.content{padding:22px 24px 60px; max-width:1400px; width:100%; margin:0 auto;}
+.page{display:none;}
+.page.active{display:block; animation:fadein .16s var(--ease);}
+@keyframes fadein{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+.page-header{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap;}
+.page-header h1{font-size:22px; font-weight:700; letter-spacing:-.01em;}
+.page-header .sub{color:var(--text-secondary); font-size:13.5px; margin-top:3px;}
+
+.mobile-nav{display:none;}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  padding:9px 15px; border-radius:10px; font-size:13.5px; font-weight:600;
+  border:1px solid transparent; cursor:pointer; white-space:nowrap;
+  transition:background .12s var(--ease), border-color .12s var(--ease), transform .08s var(--ease);
+  line-height:1.2;
+}
+.btn:active{transform:scale(.97);}
+.btn svg{width:15px;height:15px;flex-shrink:0;}
+.btn-primary{background:var(--sidebar-bg); color:#fff;}
+.btn-primary:hover{background:#20232a;}
+.btn-secondary{background:var(--surface); color:var(--text-primary); border-color:var(--border);}
+.btn-secondary:hover{background:var(--surface-2);}
+.btn-ghost{background:transparent; color:var(--text-secondary);}
+.btn-ghost:hover{background:var(--surface-2); color:var(--text-primary);}
+.btn-danger{background:var(--negative-soft); color:var(--negative);}
+.btn-danger:hover{background:#f8d9da;}
+.btn-sm{padding:6px 11px; font-size:12.5px; border-radius:8px;}
+.btn-block{width:100%;}
+.btn:disabled{opacity:.5; cursor:not-allowed;}
+.btn-icon-only{padding:9px; width:36px;}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-xs);
+}
+.card-pad{padding:20px;}
+.card-head{display:flex; align-items:center; justify-content:space-between; padding:18px 20px 0; gap:10px;}
+.card-title{font-size:14.5px; font-weight:700; letter-spacing:-.005em;}
+.card-title .muted{font-weight:500; color:var(--text-tertiary); font-size:12px;}
+
+.grid{display:grid; gap:16px;}
+.grid-kpi{grid-template-columns:repeat(4,1fr);}
+.grid-2{grid-template-columns:2fr 1fr;}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-2-eq{grid-template-columns:1fr 1fr;}
+
+/* KPI cards */
+.kpi{
+  border-radius:var(--radius-lg); padding:18px 20px; position:relative; overflow:hidden;
+  border:1px solid var(--border); background:var(--surface); box-shadow:var(--shadow-xs);
+}
+.kpi-label{font-size:12px; color:var(--text-tertiary); font-weight:600; text-transform:uppercase; letter-spacing:.04em; display:flex; align-items:center; gap:6px;}
+.kpi-value{font-size:24px; font-weight:700; margin-top:10px; letter-spacing:-.02em;}
+.kpi-delta{display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:700; margin-top:10px; padding:3px 8px; border-radius:var(--radius-pill);}
+.kpi-delta.up{color:var(--positive); background:var(--positive-soft);}
+.kpi-delta.down{color:var(--negative); background:var(--negative-soft);}
+.kpi-delta.flat{color:var(--text-tertiary); background:var(--surface-2);}
+.kpi-icon{
+  position:absolute; top:16px; right:16px; width:34px; height:34px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center; background:var(--surface-2); color:var(--text-secondary);
+}
+.kpi-icon svg{width:16px;height:16px;}
+
+/* Featured dark hero KPI */
+.kpi-hero{
+  background:var(--sidebar-bg); color:#fff; border:none;
+  grid-column:span 1;
+}
+.kpi-hero .kpi-label{color:var(--on-dark-soft);}
+.kpi-hero .kpi-value{color:#fff; font-size:28px;}
+.kpi-hero .kpi-icon{background:rgba(255,255,255,.08); color:#fff;}
+.kpi-hero .kpi-delta.up{color:#7fe0a8; background:rgba(127,224,168,.14);}
+.kpi-hero .kpi-delta.down{color:#f5a3a3; background:rgba(245,163,163,.14);}
+.hero-spark{margin-top:14px; height:34px;}
+
+/* ============================================================
+   BADGES / TAGS / PROGRESS
+   ============================================================ */
+.badge{
+  display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700;
+  padding:3px 9px; border-radius:var(--radius-pill); white-space:nowrap; line-height:1.6;
+}
+.badge-dot{width:6px;height:6px;border-radius:50%; flex-shrink:0;}
+.badge-neutral{background:var(--surface-2); color:var(--text-secondary); border:1px solid var(--border);}
+.badge-blue{background:var(--info-soft); color:var(--info);}
+.badge-green{background:var(--positive-soft); color:var(--positive);}
+.badge-red{background:var(--negative-soft); color:var(--negative);}
+.badge-amber{background:var(--warning-soft); color:var(--warning);}
+.badge-dark{background:var(--sidebar-bg); color:#fff;}
+
+.progress{height:6px; border-radius:var(--radius-pill); background:var(--surface-2); overflow:hidden;}
+.progress > div{height:100%; background:var(--sidebar-bg); border-radius:var(--radius-pill); transition:width .3s var(--ease);}
+.progress.pos > div{background:var(--positive);}
+.progress.neg > div{background:var(--negative);}
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+.table-wrap{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+table.data-table{width:100%; border-collapse:collapse; font-size:13px; min-width:560px;}
+table.data-table th{
+  text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.05em;
+  color:var(--text-tertiary); font-weight:700; padding:12px 14px; border-bottom:1px solid var(--border);
+  white-space:nowrap; position:sticky; top:0; background:var(--surface);
+}
+table.data-table td{padding:13px 14px; border-bottom:1px solid var(--border-soft); vertical-align:middle;}
+table.data-table tbody tr{transition:background .1s var(--ease);}
+table.data-table tbody tr:hover{background:var(--surface-2);}
+table.data-table tbody tr:last-child td{border-bottom:none;}
+.row-clickable{cursor:pointer;}
+.cell-title{font-weight:600;}
+.cell-sub{color:var(--text-tertiary); font-size:12px; margin-top:2px;}
+.amount-pos{color:var(--positive); font-weight:700;}
+.amount-neg{color:var(--negative); font-weight:700;}
+.row-actions{display:flex; gap:6px; justify-content:flex-end;}
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+.field{display:flex; flex-direction:column; gap:6px; margin-bottom:14px;}
+.field.full{grid-column:1 / -1;}
+.field label{font-size:12.5px; font-weight:600; color:var(--text-secondary);}
+.field .hint{font-size:11.5px; color:var(--text-tertiary);}
+.input,.select,.textarea{
+  border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:13.5px;
+  background:var(--surface); color:var(--text-primary); width:100%; outline:none;
+  transition:border-color .12s var(--ease);
+}
+.input:focus,.select:focus,.textarea:focus{border-color:#9aa5b1;}
+.textarea{resize:vertical; min-height:70px; font-family:inherit;}
+.select{appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239aa0a9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:30px;}
+.checkbox-row{display:flex; align-items:center; gap:8px; font-size:13px;}
+.form-error{color:var(--negative); font-size:12px; margin-top:4px; display:none;}
+.field.has-error .input,.field.has-error .select,.field.has-error .textarea{border-color:var(--negative);}
+.field.has-error .form-error{display:block;}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(15,17,21,.5); backdrop-filter:blur(2px);
+  display:none; align-items:center; justify-content:center; z-index:100; padding:16px;
+}
+.modal-backdrop.open{display:flex; animation:fadein .14s var(--ease);}
+.modal{
+  background:var(--surface); border-radius:var(--radius-lg); width:100%; max-width:560px;
+  max-height:88vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg);
+  animation:modalin .16s var(--ease);
+}
+.modal.modal-lg{max-width:760px;}
+.modal.modal-sm{max-width:400px;}
+@keyframes modalin{from{opacity:0; transform:translateY(10px) scale(.98);} to{opacity:1; transform:none;}}
+.modal-head{display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid var(--border-soft); flex-shrink:0;}
+.modal-head h3{font-size:16px; font-weight:700;}
+.modal-body{padding:20px; overflow-y:auto;}
+.modal-foot{display:flex; justify-content:flex-end; gap:10px; padding:16px 20px; border-top:1px solid var(--border-soft); flex-shrink:0;}
+.modal-close{width:30px;height:30px;border-radius:8px;border:none;background:var(--surface-2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);}
+.modal-close svg{width:15px;height:15px;}
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+.toast-stack{position:fixed; bottom:20px; right:20px; z-index:200; display:flex; flex-direction:column; gap:8px; max-width:320px;}
+.toast{
+  background:var(--sidebar-bg); color:#fff; padding:12px 16px; border-radius:10px;
+  font-size:13px; font-weight:500; box-shadow:var(--shadow-md); display:flex; align-items:center; gap:10px;
+  animation:toastin .18s var(--ease);
+}
+.toast svg{width:16px;height:16px;flex-shrink:0;}
+.toast.err{background:#4a1113;}
+@keyframes toastin{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+.toast.out{animation:toastout .16s var(--ease) forwards;}
+@keyframes toastout{to{opacity:0; transform:translateX(10px);}}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+.tabs{display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; overflow-x:auto;}
+.tab{padding:10px 14px; font-size:13px; font-weight:600; color:var(--text-tertiary); cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap;}
+.tab:hover{color:var(--text-primary);}
+.tab.active{color:var(--text-primary); border-color:var(--sidebar-bg);}
+.tabpanel{display:none;}
+.tabpanel.active{display:block; animation:fadein .14s var(--ease);}
+
+/* ============================================================
+   EMPTY STATES
+   ============================================================ */
+.empty{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:48px 20px; color:var(--text-tertiary);
+}
+.empty-icon{width:46px;height:46px;border-radius:12px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:var(--text-tertiary);}
+.empty-icon svg{width:22px;height:22px;}
+.empty h4{font-size:14px; color:var(--text-primary); font-weight:700; margin-bottom:4px;}
+.empty p{font-size:12.5px; max-width:280px; margin-bottom:14px;}
+
+/* ============================================================
+   ENTITY CARDS (project / experiment grid)
+   ============================================================ */
+.entity-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px;}
+.entity-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:18px; cursor:pointer; transition:box-shadow .12s var(--ease), transform .12s var(--ease), border-color .12s var(--ease);
+  display:flex; flex-direction:column; gap:12px;
+}
+.entity-card:hover{box-shadow:var(--shadow-md); border-color:#d8dbdf; transform:translateY(-1px);}
+.entity-card-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
+.entity-card-name{font-size:14.5px; font-weight:700; letter-spacing:-.005em;}
+.entity-card-desc{font-size:12.5px; color:var(--text-secondary); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+.entity-card-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding-top:10px; border-top:1px solid var(--border-soft);}
+.stat-mini-label{font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-tertiary); font-weight:700;}
+.stat-mini-value{font-size:13px; font-weight:700; margin-top:3px;}
+.entity-card-foot{display:flex; align-items:center; justify-content:space-between; font-size:11.5px; color:var(--text-tertiary);}
+
+/* ============================================================
+   DETAIL PAGE
+   ============================================================ */
+.detail-head{display:flex; align-items:flex-start; gap:14px; margin-bottom:18px; flex-wrap:wrap; justify-content:space-between;}
+.back-link{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; color:var(--text-secondary); cursor:pointer; margin-bottom:10px;}
+.back-link svg{width:14px;height:14px;}
+.detail-title-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.detail-title-row h1{font-size:21px; font-weight:700;}
+.detail-actions{display:flex; gap:8px; flex-shrink:0;}
+.detail-meta{display:flex; gap:18px; flex-wrap:wrap; margin-top:10px;}
+.meta-item{font-size:12px; color:var(--text-tertiary);}
+.meta-item b{color:var(--text-primary); font-weight:600;}
+.section-block{margin-bottom:20px;}
+.section-block h3{font-size:13px; font-weight:700; margin-bottom:10px; color:var(--text-primary);}
+.kv-list{display:grid; grid-template-columns:1fr 1fr; gap:12px 20px;}
+.kv-item{}
+.kv-item .k{font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.04em; font-weight:700;}
+.kv-item .v{font-size:13.5px; margin-top:3px; line-height:1.5;}
+.prose{font-size:13.5px; line-height:1.65; color:var(--text-primary); white-space:pre-wrap;}
+
+.milestone-row,.list-row{display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border-soft);}
+.milestone-row:last-child,.list-row:last-child{border-bottom:none;}
+.check-circle{width:20px;height:20px;border-radius:50%;border:2px solid var(--border); flex-shrink:0; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .12s var(--ease);}
+.check-circle.done{background:var(--positive); border-color:var(--positive); color:#fff;}
+.check-circle svg{width:11px;height:11px;}
+
+/* ============================================================
+   CHARTS
+   ============================================================ */
+.chart-box{position:relative; width:100%;}
+.chart-box canvas{max-width:100%;}
+.chart-legend-row{display:flex; gap:16px; flex-wrap:wrap; margin-top:10px;}
+.legend-chip{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--text-secondary);}
+.legend-dot{width:8px;height:8px;border-radius:2px;}
+
+/* ============================================================
+   FILTER BAR
+   ============================================================ */
+.filter-bar{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items:center;}
+.filter-bar .select,.filter-bar .input{width:auto; min-width:130px;}
+.filter-bar .input[type="date"]{min-width:150px;}
+
+/* Search results panel */
+.search-results{
+  position:absolute; top:calc(100% + 8px); left:0; right:0; background:var(--surface);
+  border:1px solid var(--border); border-radius:var(--radius-md); box-shadow:var(--shadow-md);
+  max-height:400px; overflow-y:auto; z-index:60; display:none;
+}
+.search-results.open{display:block;}
+.sr-group-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-tertiary); font-weight:700; padding:10px 14px 4px;}
+.sr-item{padding:9px 14px; cursor:pointer; font-size:13px; display:flex; justify-content:space-between; gap:10px;}
+.sr-item:hover{background:var(--surface-2);}
+.sr-item .sr-sub{color:var(--text-tertiary); font-size:11.5px;}
+.sr-empty{padding:20px; text-align:center; color:var(--text-tertiary); font-size:12.5px;}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:1080px){
+  .grid-kpi{grid-template-columns:repeat(2,1fr);}
+  .grid-2{grid-template-columns:1fr;}
+  .grid-3{grid-template-columns:repeat(2,1fr);}
+}
+
+@media (max-width:860px){
+  .sidebar{
+    position:fixed; left:0; top:0; height:100vh; transform:translateX(-100%);
+    transition:transform .2s var(--ease); box-shadow:var(--shadow-lg);
+  }
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:39;}
+  .sidebar-scrim.open{display:block;}
+  .menu-toggle{display:flex;}
+  .searchbar{max-width:none;}
+  .page-title{display:none;}
+  .content{padding:16px 14px 90px;}
+  .grid-kpi{grid-template-columns:repeat(2,1fr); gap:10px;}
+  .grid-3{grid-template-columns:1fr;}
+  .form-grid{grid-template-columns:1fr;}
+  .kv-list{grid-template-columns:1fr;}
+  .entity-grid{grid-template-columns:1fr;}
+  .modal-body{padding:16px;}
+  .card-head{padding:14px 14px 0;}
+  .card-pad{padding:14px;}
+  .toast-stack{left:14px; right:14px; bottom:78px; max-width:none;}
+
+  .mobile-nav{
+    display:flex; position:fixed; bottom:0; left:0; right:0; height:60px; z-index:50;
+    background:rgba(20,22,26,.97); backdrop-filter:blur(10px);
+    align-items:center; justify-content:space-around; padding:0 4px;
+    box-shadow:0 -2px 12px rgba(0,0,0,.12);
+  }
+  .mnav-item{
+    display:flex; flex-direction:column; align-items:center; gap:3px; color:#7d818a;
+    font-size:9.5px; font-weight:600; cursor:pointer; padding:6px 8px; border-radius:10px; flex:1;
+  }
+  .mnav-item svg{width:19px;height:19px;}
+  .mnav-item.active{color:#fff;}
+  .mnav-item.more{position:relative;}
+  body{padding-bottom:0;}
+  .content{margin-bottom:0;}
+}
+
+@media (max-width:520px){
+  .kpi-value{font-size:20px;}
+  .grid-kpi{grid-template-columns:1fr 1fr;}
+  .page-header{flex-direction:column; align-items:stretch;}
+  .detail-actions{width:100%;}
+  .detail-actions .btn{flex:1;}
+}
+
+@media print{
+  .sidebar,.topbar,.mobile-nav,.modal-backdrop,.toast-stack{display:none !important;}
+  .content{padding:0; max-width:none;}
+  body{background:#fff;}
+  .page{display:none !important;}
+  .page.print-active{display:block !important;}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="sidebar-scrim" id="sidebarScrim"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="brand-mark">BH</div>
+      <div>
+        <div class="brand-name" id="brandName">Business Hub</div>
+        <div class="brand-sub">Operating system</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <div class="nav-item" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        <span class="nav-label">Dashboard</span>
+      </div>
+      <div class="nav-item" data-page="projects">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+        <span class="nav-label">Projects</span>
+      </div>
+      <div class="nav-item" data-page="experiments">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v6L4 19a1.5 1.5 0 0 0 1.4 2h13.2a1.5 1.5 0 0 0 1.4-2L15 8V2"/><path d="M9 2h6"/><path d="M7.5 14h9"/></svg>
+        <span class="nav-label">Experiments</span>
+      </div>
+      <div class="nav-item" data-page="finances">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
+        <span class="nav-label">Finances</span>
+      </div>
+      <div class="nav-item" data-page="analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+        <span class="nav-label">Analytics</span>
+      </div>
+      <div class="nav-item" data-page="tasks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span class="nav-label">Tasks</span>
+      </div>
+      <div class="nav-item" data-page="reports">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+        <span class="nav-label">Reports</span>
+      </div>
+      <div class="nav-item" data-page="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="nav-label">Settings</span>
+      </div>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="biz-chip" data-page="settings">
+        <div class="biz-avatar" id="bizAvatar">B</div>
+        <div class="biz-chip-text">
+          <div class="biz-chip-name" id="bizChipName">My Business</div>
+          <div class="biz-chip-sub">Local · on-device</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <h1 class="page-title" id="pageTitle">Dashboard</h1>
+      <div class="searchbar" id="searchWrap" style="position:relative;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" id="globalSearch" placeholder="Search projects, experiments, transactions...">
+        <div class="search-results" id="searchResults"></div>
+      </div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="quickAddBtn" aria-label="Quick add" title="Quick add">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="content" id="content">
+
+      <!-- ============ DASHBOARD ============ -->
+      <section class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div>
+            <h1>Welcome back<span id="dashBizName"></span></h1>
+            <div class="sub" id="dashDateLine"></div>
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-secondary btn-sm" id="dashDemoBtn">Load demo data</button>
+            <button class="btn btn-primary btn-sm" id="dashAddTxBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Add transaction
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-kpi" id="dashKpis" style="margin-bottom:16px;"></div>
+
+        <div class="grid grid-2" style="align-items:start; margin-bottom:16px;">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Financial performance <span class="muted">last 30 days</span></div>
+            </div>
+            <div class="card-pad">
+              <div class="chart-box" style="height:220px;"><canvas id="dashFinanceChart"></canvas></div>
+              <div id="dashFinanceEmpty"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Activity snapshot</div></div>
+            <div class="card-pad" id="dashActivitySnap"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-2-eq" style="align-items:start;">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Project performance</div>
+              <span class="btn btn-ghost btn-sm" data-page="projects">View all</span>
+            </div>
+            <div class="card-pad" id="dashProjectsList"></div>
+          </div>
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Experiment performance</div>
+              <span class="btn btn-ghost btn-sm" data-page="experiments">View all</span>
+            </div>
+            <div class="card-pad" id="dashExperimentsList"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <div class="card-head">
+            <div class="card-title">Recent transactions</div>
+            <span class="btn btn-ghost btn-sm" data-page="finances">View all</span>
+          </div>
+          <div class="card-pad table-wrap" id="dashRecentTx"></div>
+        </div>
+      </section>
+
+      <!-- ============ PROJECTS LIST ============ -->
+      <section class="page" id="page-projects">
+        <div class="page-header">
+          <div>
+            <h1>Projects</h1>
+            <div class="sub">Things you're building, launching, or operating</div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="newProjectBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            New project
+          </button>
+        </div>
+        <div class="grid grid-kpi" id="projectsKpis" style="margin-bottom:18px;"></div>
+        <div class="filter-bar">
+          <select class="select" id="projFilterStatus">
+            <option value="">All statuses</option>
+            <option>Planning</option><option>Active</option><option>Paused</option><option>Completed</option><option>Cancelled</option>
+          </select>
+          <select class="select" id="projFilterSort">
+            <option value="updated">Sort: Recently updated</option>
+            <option value="name">Sort: Name</option>
+            <option value="roi">Sort: ROI</option>
+            <option value="revenue">Sort: Revenue</option>
+          </select>
+        </div>
+        <div class="entity-grid" id="projectsGrid"></div>
+      </section>
+
+      <!-- ============ PROJECT DETAIL ============ -->
+      <section class="page" id="page-project-detail">
+        <div class="back-link" data-page="projects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> All projects</div>
+        <div class="detail-head">
+          <div>
+            <div class="detail-title-row"><h1 id="pdName"></h1><span id="pdStatusBadge"></span></div>
+            <div class="detail-meta" id="pdMeta"></div>
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-secondary btn-sm" id="pdEditBtn">Edit</button>
+            <button class="btn btn-danger btn-sm" id="pdDeleteBtn">Delete</button>
+          </div>
+        </div>
+
+        <div class="grid grid-kpi" id="pdKpis" style="margin-bottom:18px;"></div>
+
+        <div class="tabs" id="pdTabs">
+          <div class="tab active" data-tab="overview">Overview</div>
+          <div class="tab" data-tab="financials">Financials</div>
+          <div class="tab" data-tab="tasks">Tasks</div>
+          <div class="tab" data-tab="milestones">Milestones</div>
+          <div class="tab" data-tab="metrics">Metrics</div>
+          <div class="tab" data-tab="experiments">Experiments</div>
+          <div class="tab" data-tab="activity">Activity</div>
+          <div class="tab" data-tab="notes">Notes</div>
+        </div>
+
+        <div class="tabpanel active" data-panel="overview">
+          <div class="grid grid-2" style="align-items:start;">
+            <div class="card card-pad">
+              <div class="section-block">
+                <h3>Description</h3>
+                <div class="prose" id="pdDescription"></div>
+              </div>
+              <div class="section-block">
+                <h3>Objective</h3>
+                <div class="prose" id="pdObjective"></div>
+              </div>
+              <div class="section-block" style="margin-bottom:0;">
+                <h3>Budget usage</h3>
+                <div id="pdBudgetBar"></div>
+              </div>
+            </div>
+            <div class="card card-pad">
+              <h3 style="margin-bottom:12px;">Details</h3>
+              <div class="kv-list" id="pdKvList"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabpanel" data-panel="financials">
+          <div class="card card-pad" style="margin-bottom:14px;">
+            <div class="chart-box" style="height:220px;"><canvas id="pdFinanceChart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Transactions</div>
+              <button class="btn btn-primary btn-sm" id="pdAddTxBtn">Add transaction</button>
+            </div>
+            <div class="card-pad table-wrap" id="pdTxTable"></div>
+          </div>
+        </div>
+
+        <div class="tabpanel" data-panel="tasks">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Tasks</div>
+              <button class="btn btn-primary btn-sm" id="pdAddTaskBtn">Add task</button>
+            </div>
+            <div class="card-pad" id="pdTasksList"></div>
+          </div>
+        </div>
+
+        <div class="tabpanel" data-panel="milestones">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Milestones</div>
+              <button class="btn btn-primary btn-sm" id="pdAddMilestoneBtn">Add milestone</button>
+            </div>
+            <div class="card-pad" id="pdMilestonesList"></div>
+          </div>
+        </div>
+
+        <div class="tabpanel" data-panel="metrics">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Custom metrics</div>
+              <button class="btn btn-primary btn-sm" id="pdAddMetricBtn">Add metric</button>
+            </div>
+            <div class="card-pad" id="pdMetricsList"></div>
+          </div>
+        </div>
+
+        <div class="tabpanel" data-panel="experiments">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Linked experiments</div>
+              <button class="btn btn-primary btn-sm" id="pdAddExperimentBtn">New experiment</button>
+            </div>
+            <div class="card-pad entity-grid" id="pdExperimentsList"></div>
+          </div>
+        </div>
+
+        <div class="tabpanel" data-panel="activity">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Activity &amp; history</div></div>
+            <div class="card-pad" id="pdActivityList"></div>
+          </div>
+        </div>
+
+        <div class="tabpanel" data-panel="notes">
+          <div class="card card-pad">
+            <textarea class="textarea" id="pdNotesArea" style="min-height:160px;" placeholder="Notes about this project..."></textarea>
+            <div style="margin-top:10px; text-align:right;"><button class="btn btn-primary btn-sm" id="pdSaveNotesBtn">Save notes</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ EXPERIMENTS LIST ============ -->
+      <section class="page" id="page-experiments">
+        <div class="page-header">
+          <div>
+            <h1>Experiments</h1>
+            <div class="sub">Tests designed to learn something</div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="newExperimentBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            New experiment
+          </button>
+        </div>
+        <div class="grid grid-kpi" id="expKpis" style="margin-bottom:18px;"></div>
+        <div class="filter-bar">
+          <select class="select" id="expFilterStatus">
+            <option value="">All statuses</option>
+            <option>Planned</option><option>Running</option><option>Completed</option><option>Failed</option><option>Inconclusive</option>
+          </select>
+          <select class="select" id="expFilterSort">
+            <option value="updated">Sort: Recently updated</option>
+            <option value="name">Sort: Name</option>
+            <option value="roi">Sort: ROI</option>
+          </select>
+        </div>
+        <div class="entity-grid" id="experimentsGrid"></div>
+      </section>
+
+      <!-- ============ EXPERIMENT DETAIL ============ -->
+      <section class="page" id="page-experiment-detail">
+        <div class="back-link" data-page="experiments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> All experiments</div>
+        <div class="detail-head">
+          <div>
+            <div class="detail-title-row"><h1 id="edName"></h1><span id="edStatusBadge"></span></div>
+            <div class="detail-meta" id="edMeta"></div>
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-secondary btn-sm" id="edEditBtn">Edit</button>
+            <button class="btn btn-danger btn-sm" id="edDeleteBtn">Delete</button>
+          </div>
+        </div>
+
+        <div class="grid grid-kpi" id="edKpis" style="margin-bottom:18px;"></div>
+
+        <div class="tabs" id="edTabs">
+          <div class="tab active" data-tab="overview">Overview</div>
+          <div class="tab" data-tab="metrics">Metrics</div>
+          <div class="tab" data-tab="log">Engagement log</div>
+          <div class="tab" data-tab="financials">Financials</div>
+          <div class="tab" data-tab="notes">Notes &amp; conclusion</div>
+        </div>
+
+        <div class="tabpanel active" data-panel="overview">
+          <div class="grid grid-2" style="align-items:start;">
+            <div class="card card-pad">
+              <div class="section-block"><h3>Hypothesis</h3><div class="prose" id="edHypothesis"></div></div>
+              <div class="section-block"><h3>Method</h3><div class="prose" id="edMethod"></div></div>
+              <div class="section-block" style="margin-bottom:0;"><h3>Success criteria</h3><div class="prose" id="edSuccessCriteria"></div></div>
+            </div>
+            <div class="card card-pad">
+              <h3 style="margin-bottom:12px;">Details</h3>
+              <div class="kv-list" id="edKvList"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabpanel" data-panel="metrics">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Custom metrics</div>
+              <button class="btn btn-primary btn-sm" id="edAddMetricBtn">Add metric</button>
+            </div>
+            <div class="card-pad" id="edMetricsList"></div>
+          </div>
+        </div>
+
+        <div class="tabpanel" data-panel="log">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Engagement log <span class="muted">per-post performance</span></div>
+              <button class="btn btn-primary btn-sm" id="edAddLogBtn">Add entry</button>
+            </div>
+            <div class="card-pad" id="edLogSummary"></div>
+            <div class="card-pad table-wrap" id="edLogTable" style="padding-top:0;"></div>
+          </div>
+        </div>
+
+        <div class="tabpanel" data-panel="financials">
+          <div class="card card-pad" style="margin-bottom:14px;">
+            <div class="chart-box" style="height:220px;"><canvas id="edFinanceChart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Transactions</div>
+              <button class="btn btn-primary btn-sm" id="edAddTxBtn">Add transaction</button>
+            </div>
+            <div class="card-pad table-wrap" id="edTxTable"></div>
+          </div>
+        </div>
+
+        <div class="tabpanel" data-panel="notes">
+          <div class="card card-pad">
+            <div class="field"><label>Conclusion</label><textarea class="textarea" id="edConclusionArea" placeholder="What did you learn?"></textarea></div>
+            <div class="field" style="margin-bottom:0;"><label>Notes</label><textarea class="textarea" id="edNotesArea" placeholder="Additional notes..."></textarea></div>
+            <div style="margin-top:10px; text-align:right;"><button class="btn btn-primary btn-sm" id="edSaveNotesBtn">Save</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ FINANCES ============ -->
+      <section class="page" id="page-finances">
+        <div class="page-header">
+          <div>
+            <h1>Finances</h1>
+            <div class="sub">Every income and expense across your business</div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="finAddTxBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add transaction
+          </button>
+        </div>
+
+        <div class="grid grid-kpi" id="finKpis" style="margin-bottom:18px;"></div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-pad filter-bar" style="margin-bottom:0;">
+            <select class="select" id="finFilterType"><option value="">All types</option><option value="income">Income</option><option value="expense">Expense</option></select>
+            <select class="select" id="finFilterCategory"><option value="">All categories</option></select>
+            <select class="select" id="finFilterLink"><option value="">All links</option></select>
+            <input type="date" class="input" id="finFilterFrom" title="From date">
+            <input type="date" class="input" id="finFilterTo" title="To date">
+            <button class="btn btn-ghost btn-sm" id="finFilterReset">Reset</button>
+            <div class="topbar-spacer"></div>
+            <button class="btn btn-secondary btn-sm" id="finExportCsvBtn">Export CSV</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-pad table-wrap" id="finTxTable"></div>
+        </div>
+      </section>
+
+      <!-- ============ ANALYTICS ============ -->
+      <section class="page" id="page-analytics">
+        <div class="page-header">
+          <div><h1>Analytics</h1><div class="sub">Aggregated insight across everything you track</div></div>
+        </div>
+        <div id="analyticsRoot"></div>
+      </section>
+
+      <!-- ============ TASKS ============ -->
+      <section class="page" id="page-tasks">
+        <div class="page-header">
+          <div><h1>Tasks</h1><div class="sub">What needs doing, across projects and experiments</div></div>
+          <button class="btn btn-primary btn-sm" id="tasksAddBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add task
+          </button>
+        </div>
+        <div class="grid grid-kpi" id="tasksKpis" style="margin-bottom:18px;"></div>
+        <div class="filter-bar">
+          <select class="select" id="taskFilterStatus"><option value="">All statuses</option><option>To Do</option><option>In Progress</option><option>Completed</option></select>
+          <select class="select" id="taskFilterPriority"><option value="">All priorities</option><option>Low</option><option>Medium</option><option>High</option></select>
+          <select class="select" id="taskFilterLink"><option value="">All links</option></select>
+        </div>
+        <div class="card">
+          <div class="card-pad" id="tasksListRoot"></div>
+        </div>
+      </section>
+
+      <!-- ============ REPORTS ============ -->
+      <section class="page" id="page-reports">
+        <div class="page-header">
+          <div><h1>Reports</h1><div class="sub">Generate a summary you can read, print, or share</div></div>
+        </div>
+        <div class="grid grid-3" style="margin-bottom:18px;" id="reportPickers"></div>
+        <div class="card" id="reportOutputCard" style="display:none;">
+          <div class="card-head">
+            <div class="card-title" id="reportOutputTitle">Report</div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary btn-sm" id="reportPrintBtn">Print</button>
+              <button class="btn btn-secondary btn-sm" id="reportExportBtn">Export JSON</button>
+            </div>
+          </div>
+          <div class="card-pad" id="reportOutput"></div>
+        </div>
+      </section>
+
+      <!-- ============ SETTINGS ============ -->
+      <section class="page" id="page-settings">
+        <div class="page-header">
+          <div><h1>Settings</h1><div class="sub">Business profile, currency, data management</div></div>
+        </div>
+
+        <div class="grid grid-2" style="align-items:start;">
+          <div class="card card-pad">
+            <h3 style="margin-bottom:14px;">Business profile</h3>
+            <div class="field"><label>Business name</label><input class="input" id="setBizName" placeholder="My Business"></div>
+            <div class="field"><label>Currency</label>
+              <select class="select" id="setCurrency">
+                <option value="MWK">MWK — Malawian Kwacha</option>
+                <option value="USD">USD — US Dollar</option>
+                <option value="GBP">GBP — British Pound</option>
+                <option value="EUR">EUR — Euro</option>
+                <option value="ZAR">ZAR — South African Rand</option>
+                <option value="KES">KES — Kenyan Shilling</option>
+                <option value="NGN">NGN — Nigerian Naira</option>
+                <option value="ZMW">ZMW — Zambian Kwacha</option>
+              </select>
+            </div>
+            <div class="field" style="margin-bottom:0;"><label>Theme</label>
+              <select class="select" id="setTheme"><option value="light">Light</option><option value="dark">Dark</option></select>
+            </div>
+            <div style="margin-top:14px; text-align:right;"><button class="btn btn-primary btn-sm" id="setSaveBtn">Save settings</button></div>
+          </div>
+
+          <div class="card card-pad">
+            <h3 style="margin-bottom:14px;">Data management</h3>
+            <div class="list-row"><div><div class="cell-title">Export all data</div><div class="cell-sub">Download everything as a JSON backup</div></div><button class="btn btn-secondary btn-sm" id="setExportBtn">Export</button></div>
+            <div class="list-row"><div><div class="cell-title">Import data</div><div class="cell-sub">Restore from a previously exported JSON file</div></div><button class="btn btn-secondary btn-sm" id="setImportBtn">Import</button></div>
+            <input type="file" id="setImportFile" accept="application/json" style="display:none;">
+            <div class="list-row"><div><div class="cell-title">Load demo data</div><div class="cell-sub">Insert sample projects, experiments &amp; transactions</div></div><button class="btn btn-secondary btn-sm" id="setDemoBtn">Load demo</button></div>
+            <div class="list-row" style="border-bottom:none;"><div><div class="cell-title">Clear all data</div><div class="cell-sub">Permanently delete everything on this device</div></div><button class="btn btn-danger btn-sm" id="setClearBtn">Clear data</button></div>
+          </div>
+        </div>
+
+        <div class="card card-pad" style="margin-top:16px;">
+          <h3 style="margin-bottom:6px;">About</h3>
+          <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6;">Business Hub stores everything locally on this device using IndexedDB. Nothing is sent to a server. Use Export regularly to back up your data, especially before clearing your browser data or switching devices.</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<nav class="mobile-nav" id="mobileNav">
+  <div class="mnav-item" data-page="dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+    <span>Home</span>
+  </div>
+  <div class="mnav-item" data-page="projects">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+    <span>Projects</span>
+  </div>
+  <div class="mnav-item" data-page="finances">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+    <span>Finance</span>
+  </div>
+  <div class="mnav-item" data-page="tasks">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <span>Tasks</span>
+  </div>
+  <div class="mnav-item more" id="mnavMore">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+    <span>More</span>
+  </div>
+</nav>
+
+<div class="toast-stack" id="toastStack"></div>
+<div id="modalRoot"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js" defer></script>
+<script>
+"use strict";
+/* ================================================================
+   BUSINESS HUB — application script
+   Sections: DB layer, State, Utilities, Computations, Navigation,
+   Renderers (per page), Modals, Charts, Search, Import/Export,
+   Demo data, Init.
+   ================================================================ */
+
+/* ============================================================
+   1. CONSTANTS
+   ============================================================ */
+const DB_NAME = "business_hub_db";
+const DB_VERSION = 1;
+const STORES = ["projects","experiments","transactions","tasks","settings"];
+
+const CURRENCY_SYMBOLS = {MWK:"MWK",USD:"$",GBP:"£",EUR:"€",ZAR:"R",KES:"KSh",NGN:"₦",ZMW:"ZK"};
+
+const PROJECT_STATUSES = ["Planning","Active","Paused","Completed","Cancelled"];
+const EXPERIMENT_STATUSES = ["Planned","Running","Completed","Failed","Inconclusive"];
+const TASK_STATUSES = ["To Do","In Progress","Completed"];
+const PRIORITIES = ["Low","Medium","High"];
+const EXPENSE_CATEGORIES = ["Hosting","Marketing","Advertising","Software/Tools","Equipment","Contractors","Content","Travel","Fees","Other"];
+const INCOME_CATEGORIES = ["Sales","Subscriptions","Services","Sponsorship","Grants","Investment","Other"];
+const PAYMENT_METHODS = ["Cash","Bank transfer","Mobile money","Card","Other"];
+
+let CHART_INSTANCES = {}; // canvasId -> Chart instance, so we can destroy before re-render
+
+/* ============================================================
+   2. INDEXEDDB LAYER
+   ============================================================ */
+let DB = null;
+
+function dbOpen(){
+  return new Promise((resolve,reject)=>{
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e)=>{
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains("projects")) db.createObjectStore("projects",{keyPath:"id"});
+      if(!db.objectStoreNames.contains("experiments")) db.createObjectStore("experiments",{keyPath:"id"});
+      if(!db.objectStoreNames.contains("transactions")) db.createObjectStore("transactions",{keyPath:"id"});
+      if(!db.objectStoreNames.contains("tasks")) db.createObjectStore("tasks",{keyPath:"id"});
+      if(!db.objectStoreNames.contains("settings")) db.createObjectStore("settings",{keyPath:"key"});
+    };
+    req.onsuccess = (e)=>{ DB = e.target.result; resolve(DB); };
+    req.onerror = (e)=>{ reject(e.target.error); };
+  });
+}
+
+function dbGetAll(storeName){
+  return new Promise((resolve,reject)=>{
+    if(!DB) return resolve([]);
+    const tx = DB.transaction(storeName,"readonly");
+    const req = tx.objectStore(storeName).getAll();
+    req.onsuccess = ()=> resolve(req.result||[]);
+    req.onerror = (e)=> reject(e.target.error);
+  });
+}
+
+function dbPut(storeName, value){
+  return new Promise((resolve,reject)=>{
+    const tx = DB.transaction(storeName,"readwrite");
+    tx.objectStore(storeName).put(value);
+    tx.oncomplete = ()=> resolve(value);
+    tx.onerror = (e)=> reject(e.target.error);
+  });
+}
+
+function dbDelete(storeName, id){
+  return new Promise((resolve,reject)=>{
+    const tx = DB.transaction(storeName,"readwrite");
+    tx.objectStore(storeName).delete(id);
+    tx.oncomplete = ()=> resolve(true);
+    tx.onerror = (e)=> reject(e.target.error);
+  });
+}
+
+function dbClearAll(){
+  return new Promise((resolve,reject)=>{
+    const tx = DB.transaction(STORES,"readwrite");
+    STORES.forEach(s=> tx.objectStore(s).clear());
+    tx.oncomplete = ()=> resolve(true);
+    tx.onerror = (e)=> reject(e.target.error);
+  });
+}
+
+/* ============================================================
+   3. STATE
+   ============================================================ */
+const state = {
+  projects:[], experiments:[], transactions:[], tasks:[],
+  settings:{currency:"MWK", theme:"light", businessName:"My Business"},
+  currentPage:"dashboard",
+  currentProjectId:null,
+  currentExperimentId:null,
+};
+
+async function loadAllData(){
+  const [projects, experiments, transactions, tasks, settingsRows] = await Promise.all([
+    dbGetAll("projects"), dbGetAll("experiments"), dbGetAll("transactions"), dbGetAll("tasks"), dbGetAll("settings")
+  ]);
+  state.projects = projects; state.experiments = experiments;
+  state.transactions = transactions; state.tasks = tasks;
+  const settingsRow = settingsRows.find(r=>r.key==="app");
+  if(settingsRow) state.settings = Object.assign(state.settings, settingsRow.value);
+}
+
+async function saveSettings(){
+  await dbPut("settings", {key:"app", value:state.settings});
+}
+
+/* ============================================================
+   4. UTILITIES
+   ============================================================ */
+function uid(prefix){ return (prefix||"id")+"_"+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+
+function escapeHtml(str){
+  if(str===undefined||str===null) return "";
+  return String(str).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function nl2br(str){ return escapeHtml(str||"").replace(/\n/g,"<br>"); }
+
+function currencySymbol(){ return CURRENCY_SYMBOLS[state.settings.currency] || state.settings.currency; }
+
+function formatMoney(n){
+  n = Number(n)||0;
+  const neg = n < 0;
+  const abs = Math.abs(n);
+  const formatted = abs.toLocaleString(undefined,{minimumFractionDigits:0, maximumFractionDigits:2});
+  return (neg?"-":"") + currencySymbol() + " " + formatted;
+}
+
+function formatNum(n, decimals){
+  n = Number(n)||0;
+  return n.toLocaleString(undefined,{minimumFractionDigits:decimals||0, maximumFractionDigits:decimals!==undefined?decimals:2});
+}
+
+function formatDate(d){
+  if(!d) return "—";
+  const dt = new Date(d);
+  if(isNaN(dt)) return "—";
+  return dt.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
+}
+function formatDateShort(d){
+  if(!d) return "—";
+  const dt = new Date(d);
+  if(isNaN(dt)) return "—";
+  return dt.toLocaleDateString(undefined,{month:"short",day:"numeric"});
+}
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+function safeROI(revenue, spending){
+  revenue = Number(revenue)||0; spending = Number(spending)||0;
+  if(spending === 0){
+    if(revenue === 0) return null; // no activity
+    return null; // avoid Infinity — treat as not computable
+  }
+  return ((revenue - spending) / spending) * 100;
+}
+function fmtROI(roi){
+  if(roi===null || roi===undefined || isNaN(roi)) return "—";
+  const s = (roi>=0?"+":"") + roi.toFixed(1) + "%";
+  return s;
+}
+function fmtPct(n){
+  if(n===null||n===undefined||isNaN(n)) return "—";
+  return n.toFixed(1)+"%";
+}
+function safeDiv(a,b){ b=Number(b)||0; if(b===0) return null; return (Number(a)||0)/b; }
+
+function debounce(fn, wait){
+  let t; return function(...args){ clearTimeout(t); t=setTimeout(()=>fn.apply(this,args), wait); };
+}
+
+function downloadFile(filename, content, mime){
+  const blob = new Blob([content], {type: mime||"application/octet-stream"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+}
+
+function csvEscape(v){
+  v = String(v===undefined||v===null?"":v);
+  if(/[",\n]/.test(v)) return '"'+v.replace(/"/g,'""')+'"';
+  return v;
+}
+
+/* Toasts */
+function toast(msg, type){
+  const stack = document.getElementById("toastStack");
+  const el = document.createElement("div");
+  el.className = "toast" + (type==="error"?" err":"");
+  const iconSvg = type==="error"
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>';
+  el.innerHTML = iconSvg + '<span>'+escapeHtml(msg)+'</span>';
+  stack.appendChild(el);
+  setTimeout(()=>{ el.classList.add("out"); setTimeout(()=>el.remove(), 200); }, 2600);
+}
+
+/* Small inline icon set for dynamic content */
+const ICONS = {
+  revenue:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+  expense:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 13l-5 5-5-5M12 18V2"/></svg>',
+  net:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-4 4"/></svg>',
+  folder:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>',
+  flask:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 2v6L4 19a1.5 1.5 0 0 0 1.4 2h13.2a1.5 1.5 0 0 0 1.4-2L15 8V2"/><path d="M9 2h6"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+  trend:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg>',
+  target:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>',
+  box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>',
+};
+function icon(name){ return ICONS[name] || ""; }
+
+/* ============================================================
+   5. COMPUTED / DERIVED DATA
+   ============================================================ */
+function txForProject(id){ return state.transactions.filter(t=>t.projectId===id); }
+function txForExperiment(id){ return state.transactions.filter(t=>t.experimentId===id); }
+function txGeneral(){ return state.transactions.filter(t=>!t.projectId && !t.experimentId); }
+
+function sumTx(list, type){
+  return list.filter(t=>t.type===type).reduce((s,t)=>s+(Number(t.amount)||0),0);
+}
+
+function financialsFor(list){
+  const revenue = sumTx(list,"income");
+  const spending = sumTx(list,"expense");
+  return { revenue, spending, net: revenue-spending, roi: safeROI(revenue,spending) };
+}
+
+function getProjectFinancials(id){ return financialsFor(txForProject(id)); }
+function getExperimentFinancials(id){ return financialsFor(txForExperiment(id)); }
+function getOverallFinancials(){ return financialsFor(state.transactions); }
+
+function getProjectTasks(id){ return state.tasks.filter(t=>t.projectId===id); }
+function getExperimentTasks(id){ return state.tasks.filter(t=>t.experimentId===id); }
+function getProjectExperiments(id){ return state.experiments.filter(e=>e.projectId===id); }
+
+function projectTaskProgress(id){
+  const tasks = getProjectTasks(id);
+  if(tasks.length===0) return null;
+  const done = tasks.filter(t=>t.status==="Completed").length;
+  return Math.round((done/tasks.length)*100);
+}
+
+function findProject(id){ return state.projects.find(p=>p.id===id); }
+function findExperiment(id){ return state.experiments.find(e=>e.id===id); }
+function findTransaction(id){ return state.transactions.find(t=>t.id===id); }
+function findTask(id){ return state.tasks.find(t=>t.id===id); }
+
+function statusBadgeClass(status){
+  const map = {
+    "Active":"badge-green","Running":"badge-green","Completed":"badge-blue","Planning":"badge-neutral",
+    "Planned":"badge-neutral","Paused":"badge-amber","Cancelled":"badge-red","Failed":"badge-red",
+    "Inconclusive":"badge-amber","To Do":"badge-neutral","In Progress":"badge-blue"
+  };
+  return map[status] || "badge-neutral";
+}
+function priorityBadgeClass(p){
+  return p==="High" ? "badge-red" : p==="Medium" ? "badge-amber" : "badge-neutral";
+}
+function roiBadge(roi){
+  if(roi===null||roi===undefined||isNaN(roi)) return '<span class="badge badge-neutral">No data</span>';
+  const cls = roi>=0 ? "badge-green" : "badge-red";
+  return '<span class="badge '+cls+'">'+fmtROI(roi)+'</span>';
+}
+function deltaChip(val, isPct){
+  if(val===null||val===undefined||isNaN(val)) return '<span class="kpi-delta flat">No data yet</span>';
+  const dir = val>0?"up":val<0?"down":"flat";
+  const arrow = dir==="up"?"▲":dir==="down"?"▼":"–";
+  return '<span class="kpi-delta '+dir+'">'+arrow+' '+(isPct?fmtPct(Math.abs(val)):formatNum(Math.abs(val)))+'</span>';
+}
+
+/* ============================================================
+   6. NAVIGATION
+   ============================================================ */
+const PAGE_TITLES = {
+  dashboard:"Dashboard", projects:"Projects", "project-detail":"Project", experiments:"Experiments",
+  "experiment-detail":"Experiment", finances:"Finances", analytics:"Analytics", tasks:"Tasks",
+  reports:"Reports", settings:"Settings"
+};
+
+function goPage(pageId, opts){
+  opts = opts || {};
+  state.currentPage = pageId;
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  const target = document.getElementById("page-"+pageId);
+  if(target) target.classList.add("active");
+  document.getElementById("pageTitle").textContent = PAGE_TITLES[pageId] || "Business Hub";
+
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.toggle("active", n.dataset.page===pageId));
+  const navRoot = ["dashboard","projects","finances","tasks"].includes(pageId) ? pageId : (pageId==="project-detail"?"projects":pageId==="experiment-detail"?"experiments":null);
+  document.querySelectorAll(".mnav-item[data-page]").forEach(n=>n.classList.toggle("active", n.dataset.page===navRoot));
+
+  closeMobileSidebar();
+  window.scrollTo({top:0, behavior:"instant"});
+  document.getElementById("content").scrollTop = 0;
+
+  if(pageId==="dashboard") renderDashboard();
+  else if(pageId==="projects") renderProjectsList();
+  else if(pageId==="project-detail") renderProjectDetail(opts.id || state.currentProjectId);
+  else if(pageId==="experiments") renderExperimentsList();
+  else if(pageId==="experiment-detail") renderExperimentDetail(opts.id || state.currentExperimentId);
+  else if(pageId==="finances") renderFinances();
+  else if(pageId==="analytics") renderAnalytics();
+  else if(pageId==="tasks") renderTasksPage();
+  else if(pageId==="reports") renderReports();
+  else if(pageId==="settings") renderSettings();
+}
+
+function openProject(id){ state.currentProjectId = id; goPage("project-detail",{id}); }
+function openExperiment(id){ state.currentExperimentId = id; goPage("experiment-detail",{id}); }
+
+function openMobileSidebar(){ document.getElementById("sidebar").classList.add("open"); document.getElementById("sidebarScrim").classList.add("open"); }
+function closeMobileSidebar(){ document.getElementById("sidebar").classList.remove("open"); document.getElementById("sidebarScrim").classList.remove("open"); }
+
+function switchTab(tabsRootId, tabName){
+  const root = document.getElementById(tabsRootId);
+  const container = root.closest("section.page");
+  root.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===tabName));
+  container.querySelectorAll(".tabpanel").forEach(p=>p.classList.toggle("active", p.dataset.panel===tabName));
+}
+
+/* ============================================================
+   7. CHART HELPERS (Chart.js, loaded from CDN — degrades gracefully)
+   ============================================================ */
+function chartAvailable(){ return typeof Chart !== "undefined"; }
+
+function destroyChart(canvasId){
+  if(CHART_INSTANCES[canvasId]){ try{ CHART_INSTANCES[canvasId].destroy(); }catch(e){} delete CHART_INSTANCES[canvasId]; }
+}
+
+const CHART_PALETTE = ["#14161a","#2b6df6","#15803d","#a5620a","#c0242c","#6b7280","#7c3aed","#0891b2"];
+
+function baseChartFont(){
+  return {family:getComputedStyle(document.body).fontFamily, size:11};
+}
+
+function emptyChartMsg(container, msg){
+  container.innerHTML = '<div class="empty" style="padding:24px 10px;"><div class="empty-icon">'+icon("trend")+'</div><h4>Not enough data yet</h4><p>'+escapeHtml(msg||"Add a few transactions to see this chart.")+'</p></div>';
+}
+
+/* Groups transactions into either daily buckets (<=45 day span) or monthly buckets */
+function groupTxSeries(list){
+  if(list.length===0) return {labels:[], income:[], expense:[]};
+  const dates = list.map(t=>new Date(t.date)).filter(d=>!isNaN(d));
+  if(dates.length===0) return {labels:[], income:[], expense:[]};
+  const minD = new Date(Math.min(...dates)), maxD = new Date(Math.max(...dates));
+  const spanDays = Math.max(1, Math.round((maxD-minD)/86400000));
+  const byMonth = spanDays > 60;
+  const buckets = {}; // key -> {income, expense}
+  function keyFor(d){
+    return byMonth ? (d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")) : d.toISOString().slice(0,10);
+  }
+  list.forEach(t=>{
+    const d = new Date(t.date); if(isNaN(d)) return;
+    const k = keyFor(d);
+    if(!buckets[k]) buckets[k] = {income:0, expense:0};
+    buckets[k][t.type] += Number(t.amount)||0;
+  });
+  const keys = Object.keys(buckets).sort();
+  const labels = keys.map(k=>{
+    if(byMonth){ const [y,m]=k.split("-"); return new Date(y,m-1,1).toLocaleDateString(undefined,{month:"short",year:"2-digit"}); }
+    return new Date(k).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+  });
+  return { labels, income: keys.map(k=>buckets[k].income), expense: keys.map(k=>buckets[k].expense) };
+}
+
+function renderFinanceLineChart(canvasId, list, emptyContainerEl){
+  destroyChart(canvasId);
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  if(list.length===0 || !chartAvailable()){
+    canvas.style.display="none";
+    if(emptyContainerEl) emptyChartMsg(emptyContainerEl, list.length===0?"Add income or expenses to see trends over time.":"Charts need an internet connection to load.");
+    return;
+  }
+  canvas.style.display="";
+  if(emptyContainerEl) emptyContainerEl.innerHTML = "";
+  const {labels, income, expense} = groupTxSeries(list);
+  const net = income.map((v,i)=>v-expense[i]);
+  CHART_INSTANCES[canvasId] = new Chart(canvas.getContext("2d"), {
+    type:"line",
+    data:{ labels, datasets:[
+      {label:"Income", data:income, borderColor:"#15803d", backgroundColor:"rgba(21,128,61,.08)", tension:.35, fill:true, pointRadius:0, borderWidth:2},
+      {label:"Expense", data:expense, borderColor:"#c0242c", backgroundColor:"rgba(192,36,44,.06)", tension:.35, fill:true, pointRadius:0, borderWidth:2},
+      {label:"Net", data:net, borderColor:"#14161a", borderDash:[4,3], tension:.35, fill:false, pointRadius:0, borderWidth:1.5},
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:"index", intersect:false},
+      plugins:{ legend:{display:true, position:"top", align:"end", labels:{boxWidth:8, boxHeight:8, usePointStyle:true, font:baseChartFont()}},
+        tooltip:{callbacks:{label:(ctx)=> ctx.dataset.label+": "+formatMoney(ctx.parsed.y)}} },
+      scales:{
+        x:{grid:{display:false}, ticks:{font:baseChartFont()}},
+        y:{grid:{color:"#eef0f2"}, ticks:{font:baseChartFont(), callback:(v)=>currencySymbol()+" "+formatNum(v)}}
+      }
+    }
+  });
+}
+
+function renderSparkline(canvasId, values, color){
+  destroyChart(canvasId);
+  const canvas = document.getElementById(canvasId);
+  if(!canvas || !chartAvailable() || values.length<2){ if(canvas) canvas.style.display="none"; return; }
+  canvas.style.display="";
+  CHART_INSTANCES[canvasId] = new Chart(canvas.getContext("2d"), {
+    type:"line",
+    data:{ labels:values.map((_,i)=>i), datasets:[{data:values, borderColor:color||"#fff", borderWidth:2, pointRadius:0, tension:.4, fill:false}] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}},
+      scales:{ x:{display:false}, y:{display:false} }, elements:{point:{radius:0}} }
+  });
+}
+
+function renderBarChartSimple(canvasId, labels, values, colorFn, emptyEl, emptyMsg){
+  destroyChart(canvasId);
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  if(labels.length===0 || !chartAvailable()){
+    canvas.style.display="none";
+    if(emptyEl) emptyChartMsg(emptyEl, emptyMsg);
+    return;
+  }
+  canvas.style.display=""; if(emptyEl) emptyEl.innerHTML="";
+  CHART_INSTANCES[canvasId] = new Chart(canvas.getContext("2d"), {
+    type:"bar",
+    data:{ labels, datasets:[{data:values, backgroundColor: labels.map((_,i)=>colorFn?colorFn(values[i],i):"#14161a"), borderRadius:5, maxBarThickness:34}] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:(ctx)=>formatMoney(ctx.parsed.y)}}},
+      scales:{ x:{grid:{display:false}, ticks:{font:baseChartFont()}}, y:{grid:{color:"#eef0f2"}, ticks:{font:baseChartFont(), callback:(v)=>currencySymbol()+" "+formatNum(v)}} } }
+  });
+}
+
+function renderDoughnutChart(canvasId, labels, values, emptyEl, emptyMsg){
+  destroyChart(canvasId);
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  if(labels.length===0 || !chartAvailable()){
+    canvas.style.display="none";
+    if(emptyEl) emptyChartMsg(emptyEl, emptyMsg);
+    return;
+  }
+  canvas.style.display=""; if(emptyEl) emptyEl.innerHTML="";
+  CHART_INSTANCES[canvasId] = new Chart(canvas.getContext("2d"), {
+    type:"doughnut",
+    data:{ labels, datasets:[{data:values, backgroundColor:CHART_PALETTE, borderWidth:2, borderColor:"#fff"}] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:"68%",
+      plugins:{ legend:{display:true, position:"right", labels:{boxWidth:8,boxHeight:8,usePointStyle:true, font:baseChartFont()}},
+        tooltip:{callbacks:{label:(ctx)=> ctx.label+": "+formatMoney(ctx.parsed)}} } }
+  });
+}
+
+function renderMetricLineChart(canvasId, entries, unit, emptyEl){
+  destroyChart(canvasId);
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  const sorted = [...entries].sort((a,b)=> new Date(a.date)-new Date(b.date));
+  if(sorted.length===0 || !chartAvailable()){
+    canvas.style.display="none";
+    if(emptyEl) emptyChartMsg(emptyEl, "Add dated entries to chart this metric.");
+    return;
+  }
+  canvas.style.display=""; if(emptyEl) emptyEl.innerHTML="";
+  CHART_INSTANCES[canvasId] = new Chart(canvas.getContext("2d"), {
+    type:"line",
+    data:{ labels:sorted.map(e=>formatDateShort(e.date)), datasets:[{data:sorted.map(e=>Number(e.value)||0), borderColor:"#2b6df6", backgroundColor:"rgba(43,109,246,.08)", fill:true, tension:.3, pointRadius:3, pointBackgroundColor:"#2b6df6"}] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:(ctx)=>formatNum(ctx.parsed.y)+(unit?(" "+unit):"")}}},
+      scales:{ x:{grid:{display:false}, ticks:{font:baseChartFont()}}, y:{grid:{color:"#eef0f2"}, ticks:{font:baseChartFont()}} } }
+  });
+}
+
+/* ============================================================
+   8. SHARED RENDER HELPERS
+   ============================================================ */
+function kpiCardHtml(opts){
+  // opts: {label, value, iconName, hero, sparkId, deltaHtml, sub}
+  const cls = "kpi" + (opts.hero?" kpi-hero":"");
+  return '<div class="'+cls+'">'
+    + '<div class="kpi-label">'+escapeHtml(opts.label)+'</div>'
+    + (opts.iconName ? '<div class="kpi-icon">'+icon(opts.iconName)+'</div>' : '')
+    + '<div class="kpi-value num">'+opts.value+'</div>'
+    + (opts.deltaHtml || '')
+    + (opts.sparkId ? '<div class="hero-spark"><canvas id="'+opts.sparkId+'"></canvas></div>' : '')
+    + '</div>';
+}
+
+function linkChip(item){
+  if(!item) return '<span class="badge badge-neutral">General</span>';
+  if(item.projectId){ const p = findProject(item.projectId); return p ? '<span class="badge badge-blue">'+icon("folder")+' '+escapeHtml(p.name)+'</span>' : '<span class="badge badge-neutral">Deleted project</span>'; }
+  if(item.experimentId){ const e = findExperiment(item.experimentId); return e ? '<span class="badge badge-amber">'+icon("flask")+' '+escapeHtml(e.name)+'</span>' : '<span class="badge badge-neutral">Deleted experiment</span>'; }
+  return '<span class="badge badge-neutral">General</span>';
+}
+
+function txRowHtml(t, showActions){
+  const amtCls = t.type==="income" ? "amount-pos" : "amount-neg";
+  const sign = t.type==="income" ? "+" : "-";
+  return '<tr class="row-clickable" onclick="openTransactionModal(\''+t.id+'\')">'
+    + '<td>'+formatDate(t.date)+'</td>'
+    + '<td><div class="cell-title">'+escapeHtml(t.description||"(no description)")+'</div><div class="cell-sub">'+escapeHtml(t.paymentMethod||"")+'</div></td>'
+    + '<td><span class="badge badge-neutral">'+escapeHtml(t.category||"—")+'</span></td>'
+    + '<td>'+linkChip(t)+'</td>'
+    + '<td class="num '+amtCls+'">'+sign+' '+formatMoney(Math.abs(t.amount))+'</td>'
+    + (showActions ? '<td class="row-actions" onclick="event.stopPropagation()"><button class="icon-btn btn-sm" style="width:30px;height:30px;" onclick="deleteTransactionConfirm(\''+t.id+'\')">'+icon("trash")+'</button></td>' : '')
+    + '</tr>';
+}
+
+function txTableHtml(list, showActions){
+  if(list.length===0){
+    return '<div class="empty"><div class="empty-icon">'+icon("net")+'</div><h4>No transactions yet</h4><p>Add your first income or expense to get started.</p></div>';
+  }
+  const sorted = [...list].sort((a,b)=> new Date(b.date)-new Date(a.date));
+  return '<table class="data-table"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Link</th><th>Amount</th>'
+    + (showActions?'<th></th>':'') + '</tr></thead><tbody>'
+    + sorted.map(t=>txRowHtml(t, showActions)).join("")
+    + '</tbody></table>';
+}
+
+function entityCardStat(label, value){
+  return '<div><div class="stat-mini-label">'+escapeHtml(label)+'</div><div class="stat-mini-value num">'+value+'</div></div>';
+}
+
+function projectCardHtml(p){
+  const fin = getProjectFinancials(p.id);
+  const prog = projectTaskProgress(p.id);
+  return '<div class="entity-card" onclick="openProject(\''+p.id+'\')">'
+    + '<div class="entity-card-top"><div><div class="entity-card-name">'+escapeHtml(p.name)+'</div></div>'
+    + '<span class="badge '+statusBadgeClass(p.status)+'"><span class="badge-dot" style="background:currentColor;"></span>'+escapeHtml(p.status)+'</span></div>'
+    + '<div class="entity-card-desc">'+escapeHtml(p.description||"No description yet.")+'</div>'
+    + (prog!==null ? '<div class="progress"><div style="width:'+prog+'%"></div></div>' : '')
+    + '<div class="entity-card-stats">'
+      + entityCardStat("Revenue", formatMoney(fin.revenue))
+      + entityCardStat("Spending", formatMoney(fin.spending))
+      + entityCardStat("ROI", fmtROI(fin.roi))
+    + '</div>'
+    + '<div class="entity-card-foot"><span>'+getProjectTasks(p.id).length+' tasks · '+getProjectExperiments(p.id).length+' experiments</span><span>Updated '+formatDateShort(p.updatedAt)+'</span></div>'
+    + '</div>';
+}
+
+function experimentCardHtml(e){
+  const fin = getExperimentFinancials(e.id);
+  return '<div class="entity-card" onclick="openExperiment(\''+e.id+'\')">'
+    + '<div class="entity-card-top"><div><div class="entity-card-name">'+escapeHtml(e.name)+'</div></div>'
+    + '<span class="badge '+statusBadgeClass(e.status)+'"><span class="badge-dot" style="background:currentColor;"></span>'+escapeHtml(e.status)+'</span></div>'
+    + '<div class="entity-card-desc">'+escapeHtml(e.hypothesis||"No hypothesis recorded yet.")+'</div>'
+    + '<div class="entity-card-stats">'
+      + entityCardStat("Spending", formatMoney(fin.spending))
+      + entityCardStat("Revenue", formatMoney(fin.revenue))
+      + entityCardStat("ROI", fmtROI(fin.roi))
+    + '</div>'
+    + '<div class="entity-card-foot"><span>'+(e.projectId ? (findProject(e.projectId)?("Linked · "+escapeHtml(findProject(e.projectId).name)) : "Linked project deleted") : "Independent")+'</span><span>Updated '+formatDateShort(e.updatedAt)+'</span></div>'
+    + '</div>';
+}
+
+/* ============================================================
+   9. DASHBOARD
+   ============================================================ */
+function renderDashboard(){
+  document.getElementById("dashBizName").textContent = state.settings.businessName ? (", "+state.settings.businessName) : "";
+  document.getElementById("dashDateLine").textContent = new Date().toLocaleDateString(undefined,{weekday:"long", year:"numeric", month:"long", day:"numeric"});
+
+  const overall = getOverallFinancials();
+  const activeProjects = state.projects.filter(p=>p.status==="Active").length;
+  const activeExperiments = state.experiments.filter(e=>e.status==="Running").length;
+  const totalTasks = state.tasks.length;
+  const completedTasks = state.tasks.filter(t=>t.status==="Completed").length;
+
+  const recentIncome = [...state.transactions].filter(t=>t.type==="income").sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,14).reverse().map(t=>t.amount);
+
+  const kpis = [
+    kpiCardHtml({label:"Total Revenue", value:formatMoney(overall.revenue), hero:true, sparkId:"sparkRevenue", iconName:"revenue"}),
+    kpiCardHtml({label:"Total Spending", value:formatMoney(overall.spending), iconName:"expense"}),
+    kpiCardHtml({label:"Net Result", value:formatMoney(overall.net), iconName:"net", deltaHtml:deltaChip(overall.net)}),
+    kpiCardHtml({label:"Active Projects", value:activeProjects, iconName:"folder", sub:state.projects.length+" total"}),
+    kpiCardHtml({label:"Active Experiments", value:activeExperiments, iconName:"flask", sub:state.experiments.length+" total"}),
+    kpiCardHtml({label:"Total Tasks", value:totalTasks, iconName:"box"}),
+    kpiCardHtml({label:"Completed Tasks", value:completedTasks, iconName:"check", deltaHtml: totalTasks>0 ? '<span class="kpi-delta up">'+Math.round(completedTasks/totalTasks*100)+'% done</span>' : ''}),
+  ];
+  document.getElementById("dashKpis").innerHTML = kpis.join("");
+  if(chartAvailable() && recentIncome.length>=2) renderSparkline("sparkRevenue", recentIncome, "#ffffff");
+  else { const c = document.getElementById("sparkRevenue"); if(c) c.style.display="none"; }
+
+  renderFinanceLineChart("dashFinanceChart", state.transactions, document.getElementById("dashFinanceEmpty"));
+
+  // Activity snapshot
+  const snapEl = document.getElementById("dashActivitySnap");
+  const openTasks = state.tasks.filter(t=>t.status!=="Completed" && t.dueDate).sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate)).slice(0,3);
+  const overBudget = state.projects.filter(p=>{ const f=getProjectFinancials(p.id); return p.budget && f.spending > Number(p.budget); });
+  let snapHtml = '';
+  snapHtml += '<div class="section-block"><h3 style="margin-bottom:8px;">Task completion</h3>';
+  if(totalTasks===0){ snapHtml += '<p style="font-size:12.5px;color:var(--text-tertiary);">No tasks yet.</p>'; }
+  else { snapHtml += '<div class="progress" style="margin-bottom:6px;"><div style="width:'+Math.round(completedTasks/totalTasks*100)+'%"></div></div><div style="font-size:12px;color:var(--text-secondary);">'+completedTasks+' of '+totalTasks+' tasks completed</div>'; }
+  snapHtml += '</div>';
+  snapHtml += '<div class="section-block"><h3 style="margin-bottom:8px;">Upcoming tasks</h3>';
+  if(openTasks.length===0){ snapHtml += '<p style="font-size:12.5px;color:var(--text-tertiary);">Nothing due soon.</p>'; }
+  else { openTasks.forEach(t=>{ const overdue = new Date(t.dueDate) < new Date(todayISO()); snapHtml += '<div class="list-row"><div><div class="cell-title" style="font-size:12.5px;">'+escapeHtml(t.title)+'</div><div class="cell-sub">'+(overdue?'<span style="color:var(--negative);font-weight:700;">Overdue</span> · ':'')+formatDate(t.dueDate)+'</div></div><span class="badge '+priorityBadgeClass(t.priority)+'">'+t.priority+'</span></div>'; }); }
+  snapHtml += '</div>';
+  snapHtml += '<div class="section-block" style="margin-bottom:0;"><h3 style="margin-bottom:8px;">Budget alerts</h3>';
+  if(overBudget.length===0){ snapHtml += '<p style="font-size:12.5px;color:var(--text-tertiary);">All projects within budget.</p>'; }
+  else { overBudget.forEach(p=>{ snapHtml += '<div class="list-row"><div class="cell-title" style="font-size:12.5px;">'+escapeHtml(p.name)+'</div><span class="badge badge-red">Over budget</span></div>'; }); }
+  snapHtml += '</div>';
+  snapEl.innerHTML = snapHtml;
+
+  // Project / experiment performance lists (top 5 by updatedAt)
+  const projList = [...state.projects].sort((a,b)=>new Date(b.updatedAt||0)-new Date(a.updatedAt||0)).slice(0,5);
+  document.getElementById("dashProjectsList").innerHTML = projList.length ? projList.map(p=>{
+    const f = getProjectFinancials(p.id);
+    return '<div class="list-row row-clickable" onclick="openProject(\''+p.id+'\')"><div><div class="cell-title" style="font-size:13px;">'+escapeHtml(p.name)+'</div><div class="cell-sub">'+escapeHtml(p.status)+'</div></div><div style="text-align:right;"><div class="num" style="font-size:13px;font-weight:700;">'+formatMoney(f.net)+'</div>'+roiBadge(f.roi)+'</div></div>';
+  }).join("") : emptyInline("No projects yet","folder");
+  const expList = [...state.experiments].sort((a,b)=>new Date(b.updatedAt||0)-new Date(a.updatedAt||0)).slice(0,5);
+  document.getElementById("dashExperimentsList").innerHTML = expList.length ? expList.map(e=>{
+    const f = getExperimentFinancials(e.id);
+    return '<div class="list-row row-clickable" onclick="openExperiment(\''+e.id+'\')"><div><div class="cell-title" style="font-size:13px;">'+escapeHtml(e.name)+'</div><div class="cell-sub">'+escapeHtml(e.status)+'</div></div><div style="text-align:right;"><div class="num" style="font-size:13px;font-weight:700;">'+formatMoney(f.net)+'</div>'+roiBadge(f.roi)+'</div></div>';
+  }).join("") : emptyInline("No experiments yet","flask");
+
+  document.getElementById("dashRecentTx").innerHTML = txTableHtml([...state.transactions].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8), false);
+}
+
+function emptyInline(text, iconName){
+  return '<div class="empty" style="padding:20px 10px;"><div class="empty-icon">'+icon(iconName||"box")+'</div><p style="margin:0;">'+escapeHtml(text)+'</p></div>';
+}
+
+/* ============================================================
+   10. PROJECTS — LIST
+   ============================================================ */
+function renderProjectsList(){
+  const total = state.projects.length;
+  const active = state.projects.filter(p=>p.status==="Active").length;
+  const completed = state.projects.filter(p=>p.status==="Completed").length;
+  const allProjTx = state.projects.flatMap(p=>txForProject(p.id));
+  const fin = financialsFor(allProjTx);
+
+  document.getElementById("projectsKpis").innerHTML = [
+    kpiCardHtml({label:"Total Projects", value:total, iconName:"folder", hero:true}),
+    kpiCardHtml({label:"Active", value:active, iconName:"box"}),
+    kpiCardHtml({label:"Completed", value:completed, iconName:"check"}),
+    kpiCardHtml({label:"Combined Net Result", value:formatMoney(fin.net), iconName:"net"}),
+  ].join("");
+
+  const statusF = document.getElementById("projFilterStatus").value;
+  const sortF = document.getElementById("projFilterSort").value;
+  let list = state.projects.slice();
+  if(statusF) list = list.filter(p=>p.status===statusF);
+  if(sortF==="name") list.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(sortF==="roi") list.sort((a,b)=>(getProjectFinancials(b.id).roi||-Infinity)-(getProjectFinancials(a.id).roi||-Infinity));
+  else if(sortF==="revenue") list.sort((a,b)=>getProjectFinancials(b.id).revenue-getProjectFinancials(a.id).revenue);
+  else list.sort((a,b)=>new Date(b.updatedAt||0)-new Date(a.updatedAt||0));
+
+  const grid = document.getElementById("projectsGrid");
+  if(list.length===0){
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;"><div class="empty-icon">'+icon("folder")+'</div><h4>No projects yet</h4><p>Create your first project to start tracking budget, tasks and results.</p><button class="btn btn-primary btn-sm" onclick="openProjectModal()">New project</button></div>';
+  } else {
+    grid.innerHTML = list.map(projectCardHtml).join("");
+  }
+}
+
+/* ============================================================
+   11. PROJECT — DETAIL
+   ============================================================ */
+function renderProjectDetail(id){
+  const p = findProject(id);
+  if(!p){ goPage("projects"); return; }
+  state.currentProjectId = id;
+
+  document.getElementById("pdName").textContent = p.name;
+  document.getElementById("pdStatusBadge").innerHTML = '<span class="badge '+statusBadgeClass(p.status)+'">'+escapeHtml(p.status)+'</span>';
+  document.getElementById("pdMeta").innerHTML =
+    '<span class="meta-item">Priority: <b>'+escapeHtml(p.priority||"—")+'</b></span>'
+    + '<span class="meta-item">Start: <b>'+formatDate(p.startDate)+'</b></span>'
+    + '<span class="meta-item">Target: <b>'+formatDate(p.targetDate)+'</b></span>';
+
+  const fin = getProjectFinancials(id);
+  document.getElementById("pdKpis").innerHTML = [
+    kpiCardHtml({label:"Budget", value:formatMoney(p.budget||0), iconName:"target", hero:true}),
+    kpiCardHtml({label:"Spending", value:formatMoney(fin.spending), iconName:"expense"}),
+    kpiCardHtml({label:"Revenue", value:formatMoney(fin.revenue), iconName:"revenue"}),
+    kpiCardHtml({label:"Net Result", value:formatMoney(fin.net), iconName:"net"}),
+    kpiCardHtml({label:"ROI", value:fmtROI(fin.roi), iconName:"trend"}),
+  ].join("");
+
+  document.getElementById("pdDescription").innerHTML = p.description ? nl2br(p.description) : '<span style="color:var(--text-tertiary);">No description added.</span>';
+  document.getElementById("pdObjective").innerHTML = p.objective ? nl2br(p.objective) : '<span style="color:var(--text-tertiary);">No objective added.</span>';
+
+  const budget = Number(p.budget)||0;
+  const remaining = budget - fin.spending;
+  const pct = budget>0 ? Math.min(100, Math.round((fin.spending/budget)*100)) : 0;
+  document.getElementById("pdBudgetBar").innerHTML = budget>0 ?
+    ('<div class="progress'+(fin.spending>budget?' neg':'')+'" style="margin-bottom:8px;"><div style="width:'+pct+'%"></div></div>'
+    + '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);"><span>Spent '+formatMoney(fin.spending)+'</span><span>'+(remaining>=0?'Remaining '+formatMoney(remaining):'Over by '+formatMoney(Math.abs(remaining)))+'</span></div>')
+    : '<p style="font-size:12.5px;color:var(--text-tertiary);">No budget set for this project.</p>';
+
+  document.getElementById("pdKvList").innerHTML = [
+    ["Status", p.status], ["Priority", p.priority||"—"], ["Start date", formatDate(p.startDate)],
+    ["Target completion", formatDate(p.targetDate)], ["Budget", formatMoney(p.budget||0)],
+    ["Tasks", getProjectTasks(id).length], ["Linked experiments", getProjectExperiments(id).length],
+  ].map(([k,v])=>'<div class="kv-item"><div class="k">'+escapeHtml(k)+'</div><div class="v">'+escapeHtml(String(v))+'</div></div>').join("");
+
+  // Financials tab
+  const pTx = txForProject(id);
+  renderFinanceLineChart("pdFinanceChart", pTx, null);
+  document.getElementById("pdTxTable").innerHTML = txTableHtml(pTx, true);
+
+  // Tasks tab
+  renderTaskListInto("pdTasksList", getProjectTasks(id));
+
+  // Milestones tab
+  const msList = document.getElementById("pdMilestonesList");
+  const milestones = p.milestones || [];
+  msList.innerHTML = milestones.length ? milestones.map(m=>
+    '<div class="milestone-row"><div class="check-circle'+(m.done?' done':'')+'" onclick="toggleMilestone(\''+p.id+'\',\''+m.id+'\')">'+(m.done?icon("check"):'')+'</div>'
+    + '<div style="flex:1;"><div class="cell-title" style="'+(m.done?'text-decoration:line-through;color:var(--text-tertiary);':'')+'">'+escapeHtml(m.title)+'</div>'
+    + (m.date?'<div class="cell-sub">'+formatDate(m.date)+'</div>':'')+'</div>'
+    + '<button class="icon-btn btn-sm" style="width:30px;height:30px;" onclick="deleteMilestone(\''+p.id+'\',\''+m.id+'\')">'+icon("trash")+'</button></div>'
+  ).join("") : emptyInline("No milestones yet","check");
+
+  // Metrics tab
+  renderMetricsList("projects", p.id, "pdMetricsList");
+
+  // Experiments tab
+  const linkedExp = getProjectExperiments(id);
+  document.getElementById("pdExperimentsList").innerHTML = linkedExp.length ? linkedExp.map(experimentCardHtml).join("") : emptyInline("No linked experiments","flask");
+
+  // Activity tab
+  renderProjectActivity(p);
+
+  // Notes tab
+  document.getElementById("pdNotesArea").value = p.notes || "";
+
+  switchTab("pdTabs","overview");
+}
+
+function renderTaskListInto(containerId, tasks){
+  const el = document.getElementById(containerId);
+  if(tasks.length===0){ el.innerHTML = emptyInline("No tasks yet","check"); return; }
+  const order = {"To Do":0,"In Progress":1,"Completed":2};
+  const sorted = [...tasks].sort((a,b)=> (order[a.status]-order[b.status]) || (new Date(a.dueDate||"2999-01-01")-new Date(b.dueDate||"2999-01-01")));
+  el.innerHTML = sorted.map(t=>{
+    const overdue = t.status!=="Completed" && t.dueDate && new Date(t.dueDate) < new Date(todayISO());
+    return '<div class="list-row">'
+      + '<div class="check-circle'+(t.status==="Completed"?' done':'')+'" onclick="cycleTaskStatus(\''+t.id+'\')">'+(t.status==="Completed"?icon("check"):'')+'</div>'
+      + '<div style="flex:1;" class="row-clickable" onclick="openTaskModal(\''+t.id+'\')">'
+        + '<div class="cell-title" style="'+(t.status==="Completed"?'text-decoration:line-through;color:var(--text-tertiary);':'')+'">'+escapeHtml(t.title)+'</div>'
+        + '<div class="cell-sub">'+(overdue?'<span style="color:var(--negative);font-weight:700;">Overdue</span> · ':'')+(t.dueDate?formatDate(t.dueDate):"No due date")+'</div>'
+      + '</div>'
+      + '<span class="badge '+priorityBadgeClass(t.priority)+'">'+t.priority+'</span>'
+      + '<span class="badge '+statusBadgeClass(t.status)+'">'+t.status+'</span>'
+      + '<button class="icon-btn btn-sm" style="width:30px;height:30px;" onclick="deleteTaskConfirm(\''+t.id+'\')">'+icon("trash")+'</button>'
+      + '</div>';
+  }).join("");
+}
+
+/* ============================================================
+   12. EXPERIMENTS — LIST
+   ============================================================ */
+function renderExperimentsList(){
+  const total = state.experiments.length;
+  const running = state.experiments.filter(e=>e.status==="Running").length;
+  const completed = state.experiments.filter(e=>e.status==="Completed").length;
+  const inconclusive = state.experiments.filter(e=>e.status==="Inconclusive").length;
+  const allExpTx = state.experiments.flatMap(e=>txForExperiment(e.id));
+  const fin = financialsFor(allExpTx);
+
+  document.getElementById("expKpis").innerHTML = [
+    kpiCardHtml({label:"Total Experiments", value:total, iconName:"flask", hero:true}),
+    kpiCardHtml({label:"Running", value:running, iconName:"box"}),
+    kpiCardHtml({label:"Completed", value:completed, iconName:"check"}),
+    kpiCardHtml({label:"Inconclusive", value:inconclusive, iconName:"trend"}),
+    kpiCardHtml({label:"Total Spending", value:formatMoney(fin.spending), iconName:"expense"}),
+    kpiCardHtml({label:"Total Revenue", value:formatMoney(fin.revenue), iconName:"revenue"}),
+    kpiCardHtml({label:"Combined ROI", value:fmtROI(fin.roi), iconName:"trend"}),
+  ].join("");
+
+  const statusF = document.getElementById("expFilterStatus").value;
+  const sortF = document.getElementById("expFilterSort").value;
+  let list = state.experiments.slice();
+  if(statusF) list = list.filter(e=>e.status===statusF);
+  if(sortF==="name") list.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(sortF==="roi") list.sort((a,b)=>(getExperimentFinancials(b.id).roi||-Infinity)-(getExperimentFinancials(a.id).roi||-Infinity));
+  else list.sort((a,b)=>new Date(b.updatedAt||0)-new Date(a.updatedAt||0));
+
+  const grid = document.getElementById("experimentsGrid");
+  if(list.length===0){
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;"><div class="empty-icon">'+icon("flask")+'</div><h4>No experiments yet</h4><p>Run your first test — independent or linked to a project.</p><button class="btn btn-primary btn-sm" onclick="openExperimentModal()">New experiment</button></div>';
+  } else {
+    grid.innerHTML = list.map(experimentCardHtml).join("");
+  }
+}
+
+/* ============================================================
+   13. EXPERIMENT — DETAIL
+   ============================================================ */
+function renderExperimentDetail(id){
+  const e = findExperiment(id);
+  if(!e){ goPage("experiments"); return; }
+  state.currentExperimentId = id;
+
+  document.getElementById("edName").textContent = e.name;
+  document.getElementById("edStatusBadge").innerHTML = '<span class="badge '+statusBadgeClass(e.status)+'">'+escapeHtml(e.status)+'</span>';
+  document.getElementById("edMeta").innerHTML =
+    '<span class="meta-item">'+(e.projectId && findProject(e.projectId) ? 'Linked to <b>'+escapeHtml(findProject(e.projectId).name)+'</b>' : '<b>Independent</b> experiment')+'</span>'
+    + '<span class="meta-item">Start: <b>'+formatDate(e.startDate)+'</b></span>'
+    + '<span class="meta-item">End: <b>'+formatDate(e.endDate)+'</b></span>';
+
+  const fin = getExperimentFinancials(id);
+  document.getElementById("edKpis").innerHTML = [
+    kpiCardHtml({label:"Spending", value:formatMoney(fin.spending), iconName:"expense", hero:true}),
+    kpiCardHtml({label:"Revenue", value:formatMoney(fin.revenue), iconName:"revenue"}),
+    kpiCardHtml({label:"Net Result", value:formatMoney(fin.net), iconName:"net"}),
+    kpiCardHtml({label:"ROI", value:fmtROI(fin.roi), iconName:"trend"}),
+  ].join("");
+
+  document.getElementById("edHypothesis").innerHTML = e.hypothesis ? nl2br(e.hypothesis) : '<span style="color:var(--text-tertiary);">No hypothesis recorded.</span>';
+  document.getElementById("edMethod").innerHTML = e.method ? nl2br(e.method) : '<span style="color:var(--text-tertiary);">No method recorded.</span>';
+  document.getElementById("edSuccessCriteria").innerHTML = e.successCriteria ? nl2br(e.successCriteria) : '<span style="color:var(--text-tertiary);">No success criteria recorded.</span>';
+
+  document.getElementById("edKvList").innerHTML = [
+    ["Status", e.status], ["Objective", e.objective||"—"], ["What's being tested", e.whatIsBeingTested||"—"],
+    ["Target audience", e.targetAudience||"—"], ["Variables", e.variables||"—"],
+    ["Start date", formatDate(e.startDate)], ["End date", formatDate(e.endDate)],
+  ].map(([k,v])=>'<div class="kv-item"><div class="k">'+escapeHtml(k)+'</div><div class="v">'+escapeHtml(String(v))+'</div></div>').join("");
+
+  // Metrics tab
+  renderMetricsList("experiments", e.id, "edMetricsList");
+
+  // Engagement log tab
+  renderExperimentLog(e);
+
+  // Financials tab
+  const eTx = txForExperiment(id);
+  renderFinanceLineChart("edFinanceChart", eTx, null);
+  document.getElementById("edTxTable").innerHTML = txTableHtml(eTx, true);
+
+  // Notes tab
+  document.getElementById("edConclusionArea").value = e.conclusion || "";
+  document.getElementById("edNotesArea").value = e.notes || "";
+
+  switchTab("edTabs","overview");
+}
+
+function getEntity(type, id){ return type==="projects" ? findProject(id) : findExperiment(id); }
+function entityDbStore(type){ return type==="projects" ? "projects" : "experiments"; }
+function refreshEntityDetail(type, id){ if(type==="projects") renderProjectDetail(id); else renderExperimentDetail(id); }
+
+function renderMetricsList(type, id, containerId){
+  const entity = getEntity(type, id);
+  const el = document.getElementById(containerId);
+  const metrics = (entity && entity.metrics) || [];
+  if(metrics.length===0){ el.innerHTML = emptyInline("No custom metrics yet. Track things like Views, Weekly Active Users, or Followers gained.","trend"); return; }
+  el.innerHTML = metrics.map((m,idx)=>{
+    const cid = "metricChart_"+type+"_"+entity.id+"_"+idx;
+    const latest = m.entries && m.entries.length ? [...m.entries].sort((a,b)=>new Date(b.date)-new Date(a.date))[0] : null;
+    return '<div class="card" style="margin-bottom:14px;"><div class="card-head" style="padding:14px 16px 0;">'
+      + '<div class="card-title">'+escapeHtml(m.name)+(m.unit?' <span class="muted">('+escapeHtml(m.unit)+')</span>':'')+'</div>'
+      + '<div style="display:flex;gap:6px;">'
+      + '<button class="btn btn-secondary btn-sm" onclick="openMetricEntryModal(\''+type+'\',\''+entity.id+'\',\''+m.id+'\')">Add entry</button>'
+      + '<button class="icon-btn btn-sm" style="width:30px;height:30px;" onclick="deleteMetric(\''+type+'\',\''+entity.id+'\',\''+m.id+'\')">'+icon("trash")+'</button>'
+      + '</div></div>'
+      + '<div class="card-pad">'
+      + (latest ? '<div style="font-size:20px;font-weight:700;" class="num">'+formatNum(latest.value)+(m.unit?' '+escapeHtml(m.unit):'')+'<span style="font-size:11.5px;color:var(--text-tertiary);font-weight:500;"> latest · '+formatDate(latest.date)+'</span></div>' : '')
+      + '<div class="chart-box" style="height:160px;margin-top:8px;"><canvas id="'+cid+'"></canvas></div>'
+      + '<div id="'+cid+'_empty"></div>'
+      + (m.entries && m.entries.length ? '<div class="table-wrap" style="margin-top:10px;"><table class="data-table"><thead><tr><th>Date</th><th>Value</th><th></th></tr></thead><tbody>'
+          + [...m.entries].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(en=>'<tr><td>'+formatDate(en.date)+'</td><td class="num">'+formatNum(en.value)+'</td><td class="row-actions"><button class="icon-btn btn-sm" style="width:28px;height:28px;" onclick="deleteMetricEntry(\''+type+'\',\''+entity.id+'\',\''+m.id+'\',\''+en.id+'\')">'+icon("trash")+'</button></td></tr>').join("")
+          + '</tbody></table></div>' : '')
+      + '</div></div>';
+  }).join("");
+  metrics.forEach((m,idx)=>{
+    const cid = "metricChart_"+type+"_"+entity.id+"_"+idx;
+    renderMetricLineChart(cid, m.entries||[], m.unit, document.getElementById(cid+"_empty"));
+  });
+}
+
+/* ---------- PROJECT ACTIVITY / HISTORY (derived timeline) ---------- */
+function renderProjectActivity(p){
+  const el = document.getElementById("pdActivityList");
+  const items = [];
+  txForProject(p.id).forEach(t=> items.push({
+    date: t.date, iconName: t.type==="income"?"revenue":"expense",
+    label: (t.type==="income"?"Income logged: ":"Expense logged: ")+(t.description||t.category||""),
+    sub: formatMoney(t.amount)
+  }));
+  getProjectTasks(p.id).forEach(t=> items.push({
+    date: t.updatedAt || t.createdAt, iconName:"check",
+    label: "Task \""+t.title+"\" — "+t.status, sub: t.dueDate?("Due "+formatDate(t.dueDate)):""
+  }));
+  (p.milestones||[]).forEach(m=> items.push({
+    date: m.date || p.createdAt, iconName:"target",
+    label: "Milestone: "+m.title+(m.done?" (completed)":" (target)"), sub: ""
+  }));
+  items.push({date: p.createdAt, iconName:"folder", label:"Project created", sub:""});
+
+  const sorted = items.filter(i=>i.date).sort((a,b)=> new Date(b.date)-new Date(a.date)).slice(0,30);
+  if(sorted.length===0){ el.innerHTML = emptyInline("No activity yet","trend"); return; }
+  el.innerHTML = sorted.map(i=>
+    '<div class="list-row"><div class="kpi-icon" style="position:static;width:30px;height:30px;flex-shrink:0;">'+icon(i.iconName)+'</div>'
+    + '<div style="flex:1;"><div class="cell-title" style="font-size:12.5px;">'+escapeHtml(i.label)+'</div><div class="cell-sub">'+formatDate(i.date)+(i.sub?' · '+escapeHtml(i.sub):'')+'</div></div></div>'
+  ).join("");
+}
+
+function renderExperimentLog(e){
+  const log = e.engagementLog || [];
+  const summaryEl = document.getElementById("edLogSummary");
+  const tableEl = document.getElementById("edLogTable");
+  if(log.length===0){
+    summaryEl.innerHTML = "";
+    tableEl.innerHTML = emptyInline("No engagement entries yet. Log per-post performance like views, likes, comments, and followers gained.","trend");
+    return;
+  }
+  const totals = log.reduce((acc,r)=>{
+    acc.views+=Number(r.views)||0; acc.likes+=Number(r.likes)||0; acc.comments+=Number(r.comments)||0;
+    acc.shares+=Number(r.shares)||0; acc.followers+=Number(r.followersGained)||0; return acc;
+  },{views:0,likes:0,comments:0,shares:0,followers:0});
+  const fin = getExperimentFinancials(e.id);
+  const costPerFollower = safeDiv(fin.spending, totals.followers);
+  const engagementRate = safeDiv(totals.likes+totals.comments+totals.shares, totals.views);
+
+  summaryEl.innerHTML = '<div class="grid grid-kpi" style="margin-bottom:14px;">'
+    + kpiCardHtml({label:"Total Views", value:formatNum(totals.views)})
+    + kpiCardHtml({label:"Engagement Rate", value:engagementRate!==null?fmtPct(engagementRate*100):"—"})
+    + kpiCardHtml({label:"Followers Gained", value:formatNum(totals.followers)})
+    + kpiCardHtml({label:"Cost / Follower", value:costPerFollower!==null?formatMoney(costPerFollower):"—"})
+    + '</div>';
+
+  const sorted = [...log].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  tableEl.innerHTML = '<table class="data-table"><thead><tr><th>Date</th><th>Video / Post</th><th>Views</th><th>Likes</th><th>Comments</th><th>Shares</th><th>Followers</th><th>Like rate</th><th>Engagement rate</th><th></th></tr></thead><tbody>'
+    + sorted.map(r=>{
+      const views = Number(r.views)||0, likes=Number(r.likes)||0, comments=Number(r.comments)||0, shares=Number(r.shares)||0;
+      const likeRate = safeDiv(likes, views), engRate = safeDiv(likes+comments+shares, views);
+      return '<tr><td>'+formatDate(r.date)+'</td><td class="cell-title">'+escapeHtml(r.label||"—")+'</td>'
+        + '<td class="num">'+formatNum(views)+'</td><td class="num">'+formatNum(likes)+'</td><td class="num">'+formatNum(comments)+'</td><td class="num">'+formatNum(shares)+'</td>'
+        + '<td class="num">'+formatNum(r.followersGained||0)+'</td><td class="num">'+(likeRate!==null?fmtPct(likeRate*100):"—")+'</td><td class="num">'+(engRate!==null?fmtPct(engRate*100):"—")+'</td>'
+        + '<td class="row-actions"><button class="icon-btn btn-sm" style="width:28px;height:28px;" onclick="deleteLogEntry(\''+e.id+'\',\''+r.id+'\')">'+icon("trash")+'</button></td></tr>';
+    }).join("") + '</tbody></table>';
+}
+
+/* ============================================================
+   14. FINANCES PAGE
+   ============================================================ */
+function populateFinFilterOptions(){
+  const catSel = document.getElementById("finFilterCategory");
+  const curCat = catSel.value;
+  const allCats = Array.from(new Set([...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES, ...state.transactions.map(t=>t.category).filter(Boolean)]));
+  catSel.innerHTML = '<option value="">All categories</option>' + allCats.map(c=>'<option'+(c===curCat?' selected':'')+'>'+escapeHtml(c)+'</option>').join("");
+
+  const linkSel = document.getElementById("finFilterLink");
+  const curLink = linkSel.value;
+  let opts = '<option value="">All links</option><option value="__general__"'+(curLink==="__general__"?' selected':'')+'>General (unlinked)</option>';
+  if(state.projects.length){ opts += '<optgroup label="Projects">' + state.projects.map(p=>'<option value="p:'+p.id+'"'+(curLink==="p:"+p.id?' selected':'')+'>'+escapeHtml(p.name)+'</option>').join("") + '</optgroup>'; }
+  if(state.experiments.length){ opts += '<optgroup label="Experiments">' + state.experiments.map(e=>'<option value="e:'+e.id+'"'+(curLink==="e:"+e.id?' selected':'')+'>'+escapeHtml(e.name)+'</option>').join("") + '</optgroup>'; }
+  linkSel.innerHTML = opts;
+}
+
+function getFilteredTransactions(){
+  const type = document.getElementById("finFilterType").value;
+  const cat = document.getElementById("finFilterCategory").value;
+  const link = document.getElementById("finFilterLink").value;
+  const from = document.getElementById("finFilterFrom").value;
+  const to = document.getElementById("finFilterTo").value;
+  return state.transactions.filter(t=>{
+    if(type && t.type!==type) return false;
+    if(cat && t.category!==cat) return false;
+    if(link==="__general__" && (t.projectId||t.experimentId)) return false;
+    if(link && link.startsWith("p:") && t.projectId!==link.slice(2)) return false;
+    if(link && link.startsWith("e:") && t.experimentId!==link.slice(2)) return false;
+    if(from && t.date < from) return false;
+    if(to && t.date > to) return false;
+    return true;
+  });
+}
+
+function renderFinances(){
+  populateFinFilterOptions();
+  const list = getFilteredTransactions();
+  const fin = financialsFor(list);
+  document.getElementById("finKpis").innerHTML = [
+    kpiCardHtml({label:"Total Income", value:formatMoney(fin.revenue), iconName:"revenue", hero:true}),
+    kpiCardHtml({label:"Total Expenses", value:formatMoney(fin.spending), iconName:"expense"}),
+    kpiCardHtml({label:"Net Result", value:formatMoney(fin.net), iconName:"net"}),
+    kpiCardHtml({label:"ROI", value:fmtROI(fin.roi), iconName:"trend"}),
+  ].join("");
+  document.getElementById("finTxTable").innerHTML = txTableHtml(list, true);
+}
+
+function exportTransactionsCsv(){
+  const list = getFilteredTransactions();
+  const rows = [["Date","Description","Category","Type","Link","Payment Method","Amount","Notes"]];
+  list.forEach(t=>{
+    const link = t.projectId ? ("Project: "+(findProject(t.projectId)?.name||"")) : t.experimentId ? ("Experiment: "+(findExperiment(t.experimentId)?.name||"")) : "General";
+    rows.push([t.date, t.description||"", t.category||"", t.type, link, t.paymentMethod||"", t.amount, t.notes||""]);
+  });
+  const csv = rows.map(r=>r.map(csvEscape).join(",")).join("\n");
+  downloadFile("transactions_"+todayISO()+".csv", csv, "text/csv");
+  toast("Transactions exported");
+}
+
+/* ============================================================
+   15. ANALYTICS PAGE
+   ============================================================ */
+function renderAnalytics(){
+  const root = document.getElementById("analyticsRoot");
+  if(state.transactions.length===0 && state.projects.length===0 && state.experiments.length===0 && state.tasks.length===0){
+    root.innerHTML = '<div class="card"><div class="empty" style="padding:60px 20px;"><div class="empty-icon">'+icon("trend")+'</div><h4>No data to analyze yet</h4><p>Add projects, experiments, and transactions — or load demo data — to see analytics here.</p><button class="btn btn-primary btn-sm" onclick="seedDemoData()">Load demo data</button></div></div>';
+    return;
+  }
+  root.innerHTML =
+    '<div class="card" style="margin-bottom:16px;"><div class="card-head"><div class="card-title">Revenue, expenses &amp; net over time</div></div><div class="card-pad"><div class="chart-box" style="height:240px;"><canvas id="anFinanceChart"></canvas></div><div id="anFinanceEmpty"></div></div></div>'
+    + '<div class="grid grid-2-eq" style="margin-bottom:16px; align-items:start;">'
+      + '<div class="card"><div class="card-head"><div class="card-title">Project spending</div></div><div class="card-pad"><div class="chart-box" style="height:220px;"><canvas id="anProjSpend"></canvas></div><div id="anProjSpendEmpty"></div></div></div>'
+      + '<div class="card"><div class="card-head"><div class="card-title">Project revenue</div></div><div class="card-pad"><div class="chart-box" style="height:220px;"><canvas id="anProjRev"></canvas></div><div id="anProjRevEmpty"></div></div></div>'
+    + '</div>'
+    + '<div class="grid grid-2-eq" style="margin-bottom:16px; align-items:start;">'
+      + '<div class="card"><div class="card-head"><div class="card-title">Project ROI</div></div><div class="card-pad" id="anProjRoiList"></div></div>'
+      + '<div class="card"><div class="card-head"><div class="card-title">Experiment performance</div></div><div class="card-pad" id="anExpPerfList"></div></div>'
+    + '</div>'
+    + '<div class="grid grid-2-eq" style="align-items:start;">'
+      + '<div class="card"><div class="card-head"><div class="card-title">Task completion</div></div><div class="card-pad"><div class="chart-box" style="height:220px;"><canvas id="anTaskDonut"></canvas></div><div id="anTaskDonutEmpty"></div></div></div>'
+      + '<div class="card"><div class="card-head"><div class="card-title">Spending by category</div></div><div class="card-pad"><div class="chart-box" style="height:220px;"><canvas id="anCatDonut"></canvas></div><div id="anCatDonutEmpty"></div></div></div>'
+    + '</div>';
+
+  renderFinanceLineChart("anFinanceChart", state.transactions, document.getElementById("anFinanceEmpty"));
+
+  const projLabels = state.projects.map(p=>p.name);
+  renderBarChartSimple("anProjSpend", projLabels, state.projects.map(p=>getProjectFinancials(p.id).spending), ()=> "#c0242c", document.getElementById("anProjSpendEmpty"), "Add project expenses to see this chart.");
+  renderBarChartSimple("anProjRev", projLabels, state.projects.map(p=>getProjectFinancials(p.id).revenue), ()=> "#15803d", document.getElementById("anProjRevEmpty"), "Add project income to see this chart.");
+
+  const roiEl = document.getElementById("anProjRoiList");
+  roiEl.innerHTML = state.projects.length ? state.projects.map(p=>{
+    const f = getProjectFinancials(p.id);
+    return '<div class="list-row"><div class="cell-title" style="font-size:13px;">'+escapeHtml(p.name)+'</div>'+roiBadge(f.roi)+'</div>';
+  }).join("") : emptyInline("No projects yet","folder");
+
+  const expEl = document.getElementById("anExpPerfList");
+  expEl.innerHTML = state.experiments.length ? state.experiments.map(e=>{
+    const f = getExperimentFinancials(e.id);
+    return '<div class="list-row"><div><div class="cell-title" style="font-size:13px;">'+escapeHtml(e.name)+'</div><div class="cell-sub">'+escapeHtml(e.status)+'</div></div>'+roiBadge(f.roi)+'</div>';
+  }).join("") : emptyInline("No experiments yet","flask");
+
+  const doneCt = state.tasks.filter(t=>t.status==="Completed").length;
+  const inProgCt = state.tasks.filter(t=>t.status==="In Progress").length;
+  const todoCt = state.tasks.filter(t=>t.status==="To Do").length;
+  renderDoughnutChart("anTaskDonut", ["Completed","In Progress","To Do"], [doneCt,inProgCt,todoCt], document.getElementById("anTaskDonutEmpty"), "Add tasks to see completion breakdown.");
+
+  const catTotals = {};
+  state.transactions.filter(t=>t.type==="expense").forEach(t=>{ const c=t.category||"Other"; catTotals[c]=(catTotals[c]||0)+Number(t.amount||0); });
+  const catLabels = Object.keys(catTotals);
+  renderDoughnutChart("anCatDonut", catLabels, catLabels.map(c=>catTotals[c]), document.getElementById("anCatDonutEmpty"), "Add expenses to see category breakdown.");
+}
+
+/* ============================================================
+   16. TASKS PAGE
+   ============================================================ */
+function populateTaskFilterLink(){
+  const sel = document.getElementById("taskFilterLink");
+  const cur = sel.value;
+  let opts = '<option value="">All links</option><option value="__general__"'+(cur==="__general__"?' selected':'')+'>Unlinked</option>';
+  if(state.projects.length){ opts += '<optgroup label="Projects">' + state.projects.map(p=>'<option value="p:'+p.id+'"'+(cur==="p:"+p.id?' selected':'')+'>'+escapeHtml(p.name)+'</option>').join("") + '</optgroup>'; }
+  if(state.experiments.length){ opts += '<optgroup label="Experiments">' + state.experiments.map(e=>'<option value="e:'+e.id+'"'+(cur==="e:"+e.id?' selected':'')+'>'+escapeHtml(e.name)+'</option>').join("") + '</optgroup>'; }
+  sel.innerHTML = opts;
+}
+
+function renderTasksPage(){
+  populateTaskFilterLink();
+  const total = state.tasks.length;
+  const done = state.tasks.filter(t=>t.status==="Completed").length;
+  const inProg = state.tasks.filter(t=>t.status==="In Progress").length;
+  const overdue = state.tasks.filter(t=>t.status!=="Completed" && t.dueDate && t.dueDate < todayISO()).length;
+  document.getElementById("tasksKpis").innerHTML = [
+    kpiCardHtml({label:"Total Tasks", value:total, iconName:"box", hero:true}),
+    kpiCardHtml({label:"In Progress", value:inProg, iconName:"trend"}),
+    kpiCardHtml({label:"Completed", value:done, iconName:"check"}),
+    kpiCardHtml({label:"Overdue", value:overdue, iconName:"expense"}),
+  ].join("");
+
+  const statusF = document.getElementById("taskFilterStatus").value;
+  const prioF = document.getElementById("taskFilterPriority").value;
+  const linkF = document.getElementById("taskFilterLink").value;
+  let list = state.tasks.slice();
+  if(statusF) list = list.filter(t=>t.status===statusF);
+  if(prioF) list = list.filter(t=>t.priority===prioF);
+  if(linkF==="__general__") list = list.filter(t=>!t.projectId && !t.experimentId);
+  else if(linkF.startsWith("p:")) list = list.filter(t=>t.projectId===linkF.slice(2));
+  else if(linkF.startsWith("e:")) list = list.filter(t=>t.experimentId===linkF.slice(2));
+
+  renderTaskListInto("tasksListRoot", list);
+}
+
+/* ============================================================
+   17. REPORTS PAGE
+   ============================================================ */
+function renderReports(){
+  document.getElementById("reportPickers").innerHTML = [
+    {id:"overall", title:"Overall Business Report", desc:"Full snapshot across projects, experiments, finances & tasks", iconName:"box"},
+    {id:"monthly", title:"Monthly Financial Report", desc:"Income, expenses & net result for a chosen month", iconName:"net"},
+    {id:"project", title:"Project Report", desc:"Deep dive into a single project's performance", iconName:"folder"},
+    {id:"experiment", title:"Experiment Report", desc:"Deep dive into a single experiment's results", iconName:"flask"},
+  ].map(r=>'<div class="card card-pad" style="cursor:pointer;" onclick="startReport(\''+r.id+'\')"><div class="kpi-icon" style="position:static;display:inline-flex;margin-bottom:10px;">'+icon(r.iconName)+'</div><div class="card-title" style="margin-bottom:4px;">'+r.title+'</div><div style="font-size:12px;color:var(--text-secondary);">'+r.desc+'</div></div>').join("");
+  document.getElementById("reportOutputCard").style.display = "none";
+}
+
+let currentReportData = null;
+
+function startReport(type){
+  if(type==="project"){
+    if(state.projects.length===0){ toast("Create a project first","error"); return; }
+    openPickerModal("Choose a project", state.projects.map(p=>({id:p.id, label:p.name})), (id)=>buildReport("project", id));
+  } else if(type==="experiment"){
+    if(state.experiments.length===0){ toast("Create an experiment first","error"); return; }
+    openPickerModal("Choose an experiment", state.experiments.map(e=>({id:e.id, label:e.name})), (id)=>buildReport("experiment", id));
+  } else if(type==="monthly"){
+    openMonthPickerModal((month)=>buildReport("monthly", month));
+  } else {
+    buildReport("overall", null);
+  }
+}
+
+function buildReport(type, refId){
+  let title="", html="", exportObj={};
+  if(type==="overall"){
+    const fin = getOverallFinancials();
+    title = "Overall Business Report — "+formatDate(todayISO());
+    html = reportKvBlock("Business Summary", [
+      ["Business", state.settings.businessName], ["Report date", formatDate(todayISO())],
+      ["Total revenue", formatMoney(fin.revenue)], ["Total expenses", formatMoney(fin.spending)],
+      ["Net result", formatMoney(fin.net)], ["ROI", fmtROI(fin.roi)],
+      ["Total projects", state.projects.length], ["Active projects", state.projects.filter(p=>p.status==="Active").length],
+      ["Total experiments", state.experiments.length], ["Running experiments", state.experiments.filter(e=>e.status==="Running").length],
+      ["Total tasks", state.tasks.length], ["Completed tasks", state.tasks.filter(t=>t.status==="Completed").length],
+    ]);
+    html += reportTableBlock("Projects", ["Name","Status","Revenue","Spending","Net","ROI"], state.projects.map(p=>{ const f=getProjectFinancials(p.id); return [p.name,p.status,formatMoney(f.revenue),formatMoney(f.spending),formatMoney(f.net),fmtROI(f.roi)]; }));
+    html += reportTableBlock("Experiments", ["Name","Status","Revenue","Spending","Net","ROI"], state.experiments.map(e=>{ const f=getExperimentFinancials(e.id); return [e.name,e.status,formatMoney(f.revenue),formatMoney(f.spending),formatMoney(f.net),fmtROI(f.roi)]; }));
+    exportObj = {type,generatedAt:new Date().toISOString(),financials:fin,projects:state.projects,experiments:state.experiments};
+  } else if(type==="monthly"){
+    const [y,m] = refId.split("-");
+    const monthTx = state.transactions.filter(t=>t.date && t.date.startsWith(refId));
+    const fin = financialsFor(monthTx);
+    title = "Monthly Financial Report — "+new Date(y,m-1,1).toLocaleDateString(undefined,{month:"long",year:"numeric"});
+    html = reportKvBlock("Summary", [["Income",formatMoney(fin.revenue)],["Expenses",formatMoney(fin.spending)],["Net result",formatMoney(fin.net)],["ROI",fmtROI(fin.roi)],["Transactions",monthTx.length]]);
+    html += reportTableBlock("Transactions", ["Date","Description","Category","Type","Amount"], monthTx.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(t=>[formatDate(t.date),t.description||"",t.category||"",t.type,(t.type==="income"?"+":"-")+formatMoney(Math.abs(t.amount))]));
+    exportObj = {type,month:refId,financials:fin,transactions:monthTx};
+  } else if(type==="project"){
+    const p = findProject(refId); if(!p) return;
+    const f = getProjectFinancials(refId);
+    title = "Project Report — "+p.name;
+    html = reportKvBlock("Overview", [["Status",p.status],["Priority",p.priority||"—"],["Start",formatDate(p.startDate)],["Target",formatDate(p.targetDate)],["Budget",formatMoney(p.budget||0)],["Revenue",formatMoney(f.revenue)],["Spending",formatMoney(f.spending)],["Net result",formatMoney(f.net)],["ROI",fmtROI(f.roi)]]);
+    if(p.description) html += '<div class="section-block"><h3>Description</h3><div class="prose">'+nl2br(p.description)+'</div></div>';
+    html += reportTableBlock("Tasks", ["Title","Status","Priority","Due"], getProjectTasks(refId).map(t=>[t.title,t.status,t.priority,formatDate(t.dueDate)]));
+    html += reportTableBlock("Transactions", ["Date","Description","Type","Amount"], txForProject(refId).map(t=>[formatDate(t.date),t.description||"",t.type,(t.type==="income"?"+":"-")+formatMoney(Math.abs(t.amount))]));
+    exportObj = {type,project:p,financials:f};
+  } else if(type==="experiment"){
+    const e = findExperiment(refId); if(!e) return;
+    const f = getExperimentFinancials(refId);
+    title = "Experiment Report — "+e.name;
+    html = reportKvBlock("Overview", [["Status",e.status],["Hypothesis",e.hypothesis||"—"],["Method",e.method||"—"],["Start",formatDate(e.startDate)],["End",formatDate(e.endDate)],["Revenue",formatMoney(f.revenue)],["Spending",formatMoney(f.spending)],["Net result",formatMoney(f.net)],["ROI",fmtROI(f.roi)]]);
+    if(e.conclusion) html += '<div class="section-block"><h3>Conclusion</h3><div class="prose">'+nl2br(e.conclusion)+'</div></div>';
+    (e.metrics||[]).forEach(m=>{ const latest = m.entries&&m.entries.length?[...m.entries].sort((a,b)=>new Date(b.date)-new Date(a.date))[0]:null; html += reportKvBlock(m.name, [["Latest value", latest?formatNum(latest.value)+(m.unit?" "+m.unit:""):"—"],["Entries",(m.entries||[]).length]]); });
+    exportObj = {type,experiment:e,financials:f};
+  }
+
+  currentReportData = exportObj;
+  document.getElementById("reportOutputTitle").textContent = title;
+  document.getElementById("reportOutput").innerHTML = html;
+  document.getElementById("reportOutputCard").style.display = "";
+  document.getElementById("reportOutputCard").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function reportKvBlock(title, pairs){
+  return '<div class="section-block"><h3>'+escapeHtml(title)+'</h3><div class="kv-list">'
+    + pairs.map(([k,v])=>'<div class="kv-item"><div class="k">'+escapeHtml(k)+'</div><div class="v">'+escapeHtml(String(v))+'</div></div>').join("")
+    + '</div></div>';
+}
+function reportTableBlock(title, headers, rows){
+  if(rows.length===0) return '<div class="section-block"><h3>'+escapeHtml(title)+'</h3><p style="font-size:12.5px;color:var(--text-tertiary);">No data.</p></div>';
+  return '<div class="section-block"><h3>'+escapeHtml(title)+'</h3><div class="table-wrap"><table class="data-table"><thead><tr>'
+    + headers.map(h=>'<th>'+escapeHtml(h)+'</th>').join("") + '</tr></thead><tbody>'
+    + rows.map(r=>'<tr>'+r.map(c=>'<td>'+escapeHtml(String(c))+'</td>').join("")+'</tr>').join("")
+    + '</tbody></table></div></div>';
+}
+
+/* ============================================================
+   18. SETTINGS PAGE
+   ============================================================ */
+function renderSettings(){
+  document.getElementById("setBizName").value = state.settings.businessName || "";
+  document.getElementById("setCurrency").value = state.settings.currency || "MWK";
+  document.getElementById("setTheme").value = state.settings.theme || "light";
+}
+
+async function saveSettingsFromForm(){
+  state.settings.businessName = document.getElementById("setBizName").value.trim() || "My Business";
+  state.settings.currency = document.getElementById("setCurrency").value;
+  state.settings.theme = document.getElementById("setTheme").value;
+  await saveSettings();
+  applySettingsToChrome();
+  toast("Settings saved");
+  // Re-render current page so currency/name changes reflect immediately
+  goPage(state.currentPage, {id: state.currentPage==="project-detail"?state.currentProjectId:state.currentExperimentId});
+}
+
+function applySettingsToChrome(){
+  document.getElementById("brandName").textContent = state.settings.businessName || "Business Hub";
+  document.getElementById("bizChipName").textContent = state.settings.businessName || "My Business";
+  const initial = (state.settings.businessName||"B").trim().charAt(0).toUpperCase() || "B";
+  document.getElementById("bizAvatar").textContent = initial;
+  document.title = (state.settings.businessName || "Business Hub") + " — Business Hub";
+}
+
+/* ============================================================
+   19. MODAL SYSTEM (generic)
+   ============================================================ */
+function showModal(html){
+  closeModal();
+  const root = document.getElementById("modalRoot");
+  const backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+  backdrop.id = "activeModalBackdrop";
+  backdrop.innerHTML = html;
+  root.appendChild(backdrop);
+  requestAnimationFrame(()=> backdrop.classList.add("open"));
+  backdrop.addEventListener("mousedown",(e)=>{ if(e.target===backdrop) closeModal(); });
+  document.addEventListener("keydown", escCloseHandler);
+}
+function closeModal(){
+  const backdrop = document.getElementById("activeModalBackdrop");
+  if(backdrop) backdrop.remove();
+  document.removeEventListener("keydown", escCloseHandler);
+}
+function escCloseHandler(e){ if(e.key==="Escape") closeModal(); }
+
+function fieldError(inputId, show){
+  const field = document.getElementById(inputId).closest(".field");
+  if(field) field.classList.toggle("has-error", !!show);
+}
+
+/* ---------- PROJECT MODAL ---------- */
+function openProjectModal(id){
+  const p = id ? findProject(id) : null;
+  const isEdit = !!p;
+  const html = `
+  <div class="modal modal-lg">
+    <div class="modal-head"><h3>${isEdit?"Edit project":"New project"}</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="field full"><label>Project name *</label><input class="input" id="mpName" value="${escapeHtml(p?p.name:"")}" placeholder="e.g. Build CarVideoTool"><div class="form-error">Project name is required.</div></div>
+      <div class="field full"><label>Description</label><textarea class="textarea" id="mpDescription" placeholder="What is this project?">${escapeHtml(p?p.description:"")}</textarea></div>
+      <div class="field full"><label>Objective</label><textarea class="textarea" id="mpObjective" placeholder="What does success look like?">${escapeHtml(p?p.objective:"")}</textarea></div>
+      <div class="form-grid">
+        <div class="field"><label>Status</label><select class="select" id="mpStatus">${PROJECT_STATUSES.map(s=>'<option'+(p&&p.status===s?' selected':(!p&&s==="Planning"?' selected':''))+'>'+s+'</option>').join("")}</select></div>
+        <div class="field"><label>Priority</label><select class="select" id="mpPriority">${PRIORITIES.map(s=>'<option'+(p&&p.priority===s?' selected':(!p&&s==="Medium"?' selected':''))+'>'+s+'</option>').join("")}</select></div>
+        <div class="field"><label>Start date</label><input type="date" class="input" id="mpStart" value="${p&&p.startDate?p.startDate:""}"></div>
+        <div class="field"><label>Target completion</label><input type="date" class="input" id="mpTarget" value="${p&&p.targetDate?p.targetDate:""}"></div>
+        <div class="field full"><label>Budget (${currencySymbol()})</label><input type="number" min="0" step="0.01" class="input" id="mpBudget" value="${p&&p.budget?p.budget:""}" placeholder="0"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      ${isEdit?'<button class="btn btn-danger" style="margin-right:auto;" onclick="deleteProjectConfirm(\''+p.id+'\')">Delete</button>':''}
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProjectFromModal(${isEdit?`'${p.id}'`:'null'})">${isEdit?"Save changes":"Create project"}</button>
+    </div>
+  </div>`;
+  showModal(html);
+}
+
+async function saveProjectFromModal(id){
+  const name = document.getElementById("mpName").value.trim();
+  if(!name){ fieldError("mpName", true); toast("Project name is required","error"); return; }
+  fieldError("mpName", false);
+  const now = new Date().toISOString();
+  let p = id ? findProject(id) : {id: uid("proj"), createdAt: now, milestones:[], metrics:[], notes:""};
+  p.name = name;
+  p.description = document.getElementById("mpDescription").value.trim();
+  p.objective = document.getElementById("mpObjective").value.trim();
+  p.status = document.getElementById("mpStatus").value;
+  p.priority = document.getElementById("mpPriority").value;
+  p.startDate = document.getElementById("mpStart").value;
+  p.targetDate = document.getElementById("mpTarget").value;
+  p.budget = parseFloat(document.getElementById("mpBudget").value) || 0;
+  p.updatedAt = now;
+  if(!p.milestones) p.milestones = [];
+  if(!p.metrics) p.metrics = [];
+  if(p.notes===undefined) p.notes = "";
+  await dbPut("projects", p);
+  if(!id) state.projects.push(p);
+  closeModal();
+  toast(id?"Project updated":"Project created successfully.");
+  if(id && state.currentPage==="project-detail") renderProjectDetail(id);
+  else if(state.currentPage==="projects") renderProjectsList();
+  else if(state.currentPage==="dashboard") renderDashboard();
+  else openProject(p.id);
+}
+
+function deleteProjectConfirm(id){
+  const p = findProject(id); if(!p) return;
+  const relatedTx = txForProject(id).length, relatedTasks = getProjectTasks(id).length, relatedExp = getProjectExperiments(id).length;
+  openConfirmModal({
+    title:"Delete project?",
+    body:'This permanently deletes "'+p.name+'" and unlinks '+relatedTx+' transaction(s) and '+relatedTasks+' task(s). '+(relatedExp>0?(relatedExp+' linked experiment(s) will become independent.'):''),
+    confirmLabel:"Delete project",
+    danger:true,
+    onConfirm: async ()=>{
+      await dbDelete("projects", id);
+      state.projects = state.projects.filter(x=>x.id!==id);
+      // unlink related transactions/tasks/experiments rather than deleting them
+      const txUpdates = state.transactions.filter(t=>t.projectId===id);
+      for(const t of txUpdates){ t.projectId = null; await dbPut("transactions", t); }
+      const taskUpdates = state.tasks.filter(t=>t.projectId===id);
+      for(const t of taskUpdates){ t.projectId = null; await dbPut("tasks", t); }
+      const expUpdates = state.experiments.filter(e=>e.projectId===id);
+      for(const e of expUpdates){ e.projectId = null; await dbPut("experiments", e); }
+      closeModal();
+      toast("Project deleted.");
+      goPage("projects");
+    }
+  });
+}
+
+function toggleMilestone(projectId, msId){
+  const p = findProject(projectId); if(!p) return;
+  const m = (p.milestones||[]).find(x=>x.id===msId); if(!m) return;
+  m.done = !m.done; p.updatedAt = new Date().toISOString();
+  dbPut("projects", p).then(()=> renderProjectDetail(projectId));
+}
+function deleteMilestone(projectId, msId){
+  const p = findProject(projectId); if(!p) return;
+  p.milestones = (p.milestones||[]).filter(x=>x.id!==msId); p.updatedAt = new Date().toISOString();
+  dbPut("projects", p).then(()=>{ renderProjectDetail(projectId); toast("Milestone removed"); });
+}
+function openMilestoneModal(projectId){
+  const html = `
+  <div class="modal modal-sm">
+    <div class="modal-head"><h3>Add milestone</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="field full"><label>Title *</label><input class="input" id="mmTitle" placeholder="e.g. Launch beta"><div class="form-error">Title is required.</div></div>
+      <div class="field full" style="margin-bottom:0;"><label>Target date</label><input type="date" class="input" id="mmDate"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveMilestone('${projectId}')">Add milestone</button></div>
+  </div>`;
+  showModal(html);
+}
+async function saveMilestone(projectId){
+  const title = document.getElementById("mmTitle").value.trim();
+  if(!title){ fieldError("mmTitle", true); return; }
+  const p = findProject(projectId); if(!p) return;
+  if(!p.milestones) p.milestones = [];
+  p.milestones.push({id: uid("ms"), title, date: document.getElementById("mmDate").value, done:false});
+  p.updatedAt = new Date().toISOString();
+  await dbPut("projects", p);
+  closeModal(); toast("Milestone added"); renderProjectDetail(projectId);
+}
+
+/* ---------- EXPERIMENT MODAL ---------- */
+function openExperimentModal(id, presetProjectId){
+  const e = id ? findExperiment(id) : null;
+  const isEdit = !!e;
+  const projOptions = '<option value="">Independent (no project)</option>' + state.projects.map(p=>'<option value="'+p.id+'"'+((e&&e.projectId===p.id)||(!e&&presetProjectId===p.id)?' selected':'')+'>'+escapeHtml(p.name)+'</option>').join("");
+  const html = `
+  <div class="modal modal-lg">
+    <div class="modal-head"><h3>${isEdit?"Edit experiment":"New experiment"}</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="field full"><label>Experiment name *</label><input class="input" id="meName" value="${escapeHtml(e?e.name:"")}" placeholder="e.g. TikTok User Reaction Test"><div class="form-error">Experiment name is required.</div></div>
+      <div class="field full"><label>Hypothesis</label><textarea class="textarea" id="meHypothesis" placeholder="What do you expect to happen, and why?">${escapeHtml(e?e.hypothesis:"")}</textarea></div>
+      <div class="form-grid">
+        <div class="field full"><label>Objective</label><input class="input" id="meObjective" value="${escapeHtml(e?e.objective:"")}" placeholder="What are you trying to learn?"></div>
+        <div class="field full"><label>What's being tested</label><input class="input" id="meWhatTested" value="${escapeHtml(e?e.whatIsBeingTested:"")}" placeholder="e.g. Cinematic vs casual video style"></div>
+        <div class="field"><label>Method</label><input class="input" id="meMethod" value="${escapeHtml(e?e.method:"")}" placeholder="How will you run this test?"></div>
+        <div class="field"><label>Target audience</label><input class="input" id="meAudience" value="${escapeHtml(e?e.targetAudience:"")}" placeholder="Who is this aimed at?"></div>
+        <div class="field"><label>Variables</label><input class="input" id="meVariables" value="${escapeHtml(e?e.variables:"")}" placeholder="What's changing between tests?"></div>
+        <div class="field"><label>Success criteria</label><input class="input" id="meSuccess" value="${escapeHtml(e?e.successCriteria:"")}" placeholder="What counts as a win?"></div>
+        <div class="field"><label>Status</label><select class="select" id="meStatus">${EXPERIMENT_STATUSES.map(s=>'<option'+(e&&e.status===s?' selected':(!e&&s==="Planned"?' selected':''))+'>'+s+'</option>').join("")}</select></div>
+        <div class="field"><label>Linked project</label><select class="select" id="meProject">${projOptions}</select></div>
+        <div class="field"><label>Start date</label><input type="date" class="input" id="meStart" value="${e&&e.startDate?e.startDate:""}"></div>
+        <div class="field"><label>End date</label><input type="date" class="input" id="meEnd" value="${e&&e.endDate?e.endDate:""}"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      ${isEdit?'<button class="btn btn-danger" style="margin-right:auto;" onclick="deleteExperimentConfirm(\''+e.id+'\')">Delete</button>':''}
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveExperimentFromModal(${isEdit?`'${e.id}'`:'null'})">${isEdit?"Save changes":"Create experiment"}</button>
+    </div>
+  </div>`;
+  showModal(html);
+}
+
+async function saveExperimentFromModal(id){
+  const name = document.getElementById("meName").value.trim();
+  if(!name){ fieldError("meName", true); toast("Experiment name is required","error"); return; }
+  fieldError("meName", false);
+  const now = new Date().toISOString();
+  let e = id ? findExperiment(id) : {id: uid("exp"), createdAt: now, metrics:[], engagementLog:[], conclusion:"", notes:""};
+  e.name = name;
+  e.hypothesis = document.getElementById("meHypothesis").value.trim();
+  e.objective = document.getElementById("meObjective").value.trim();
+  e.whatIsBeingTested = document.getElementById("meWhatTested").value.trim();
+  e.method = document.getElementById("meMethod").value.trim();
+  e.targetAudience = document.getElementById("meAudience").value.trim();
+  e.variables = document.getElementById("meVariables").value.trim();
+  e.successCriteria = document.getElementById("meSuccess").value.trim();
+  e.status = document.getElementById("meStatus").value;
+  e.projectId = document.getElementById("meProject").value || null;
+  e.startDate = document.getElementById("meStart").value;
+  e.endDate = document.getElementById("meEnd").value;
+  e.updatedAt = now;
+  if(!e.metrics) e.metrics = [];
+  if(!e.engagementLog) e.engagementLog = [];
+  if(e.conclusion===undefined) e.conclusion = "";
+  if(e.notes===undefined) e.notes = "";
+  await dbPut("experiments", e);
+  if(!id) state.experiments.push(e);
+  closeModal();
+  toast(id?"Experiment updated":"Experiment created successfully.");
+  if(id && state.currentPage==="experiment-detail") renderExperimentDetail(id);
+  else if(state.currentPage==="experiments") renderExperimentsList();
+  else if(state.currentPage==="project-detail") renderProjectDetail(state.currentProjectId);
+  else if(state.currentPage==="dashboard") renderDashboard();
+  else openExperiment(e.id);
+}
+
+function deleteExperimentConfirm(id){
+  const e = findExperiment(id); if(!e) return;
+  const relatedTx = txForExperiment(id).length;
+  openConfirmModal({
+    title:"Delete experiment?",
+    body:'This permanently deletes "'+e.name+'" and unlinks '+relatedTx+' transaction(s). Its metrics and engagement log will be removed.',
+    confirmLabel:"Delete experiment",
+    danger:true,
+    onConfirm: async ()=>{
+      await dbDelete("experiments", id);
+      state.experiments = state.experiments.filter(x=>x.id!==id);
+      const txUpdates = state.transactions.filter(t=>t.experimentId===id);
+      for(const t of txUpdates){ t.experimentId = null; await dbPut("transactions", t); }
+      closeModal();
+      toast("Experiment deleted.");
+      goPage("experiments");
+    }
+  });
+}
+
+/* ---------- TRANSACTION MODAL ---------- */
+function buildCategoryOptions(type, selected){
+  const list = type==="income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  return list.map(c=>'<option'+(c===selected?' selected':'')+'>'+c+'</option>').join("");
+}
+function buildLinkOptions(selectedValue){
+  let opts = '<option value=""'+(selectedValue===""?' selected':'')+'>General (no link)</option>';
+  if(state.projects.length){ opts += '<optgroup label="Projects">' + state.projects.map(p=>'<option value="p:'+p.id+'"'+(selectedValue==="p:"+p.id?' selected':'')+'>'+escapeHtml(p.name)+'</option>').join("") + '</optgroup>'; }
+  if(state.experiments.length){ opts += '<optgroup label="Experiments">' + state.experiments.map(e=>'<option value="e:'+e.id+'"'+(selectedValue==="e:"+e.id?' selected':'')+'>'+escapeHtml(e.name)+'</option>').join("") + '</optgroup>'; }
+  return opts;
+}
+function onTxTypeChange(){
+  const type = document.getElementById("mtType").value;
+  document.getElementById("mtCategory").innerHTML = buildCategoryOptions(type, null);
+}
+
+function openTransactionModal(id, presetLink){
+  const t = id ? findTransaction(id) : null;
+  const isEdit = !!t;
+  let linkVal = "";
+  if(t){ linkVal = t.projectId ? "p:"+t.projectId : t.experimentId ? "e:"+t.experimentId : ""; }
+  else if(presetLink){ linkVal = presetLink.projectId ? "p:"+presetLink.projectId : presetLink.experimentId ? "e:"+presetLink.experimentId : ""; }
+  const type = t ? t.type : "expense";
+  const html = `
+  <div class="modal">
+    <div class="modal-head"><h3>${isEdit?"Edit transaction":"Add transaction"}</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Type *</label><select class="select" id="mtType" onchange="onTxTypeChange()"><option value="expense"${type==="expense"?" selected":""}>Expense</option><option value="income"${type==="income"?" selected":""}>Income</option></select></div>
+        <div class="field"><label>Amount (${currencySymbol()}) *</label><input type="number" min="0" step="0.01" class="input" id="mtAmount" value="${t?t.amount:""}" placeholder="0"><div class="form-error">Enter an amount greater than 0.</div></div>
+        <div class="field"><label>Category</label><select class="select" id="mtCategory">${buildCategoryOptions(type, t?t.category:null)}</select></div>
+        <div class="field"><label>Date *</label><input type="date" class="input" id="mtDate" value="${t?t.date:todayISO()}"><div class="form-error">Date is required.</div></div>
+        <div class="field full"><label>Description</label><input class="input" id="mtDescription" value="${escapeHtml(t?t.description:"")}" placeholder="What was this for?"></div>
+        <div class="field"><label>Link to</label><select class="select" id="mtLink">${buildLinkOptions(linkVal)}</select></div>
+        <div class="field"><label>Payment method</label><select class="select" id="mtPayment">${PAYMENT_METHODS.map(m=>'<option'+(t&&t.paymentMethod===m?' selected':'')+'>'+m+'</option>').join("")}</select></div>
+        <div class="field full" style="margin-bottom:0;"><label>Notes</label><textarea class="textarea" id="mtNotes" placeholder="Optional notes">${escapeHtml(t?t.notes:"")}</textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      ${isEdit?'<button class="btn btn-danger" style="margin-right:auto;" onclick="deleteTransactionConfirm(\''+t.id+'\')">Delete</button>':''}
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTransactionFromModal(${isEdit?`'${t.id}'`:'null'})">${isEdit?"Save changes":"Add transaction"}</button>
+    </div>
+  </div>`;
+  showModal(html);
+}
+
+async function saveTransactionFromModal(id){
+  const amount = parseFloat(document.getElementById("mtAmount").value);
+  const date = document.getElementById("mtDate").value;
+  let valid = true;
+  if(!amount || amount<=0){ fieldError("mtAmount", true); valid=false; } else fieldError("mtAmount", false);
+  if(!date){ fieldError("mtDate", true); valid=false; } else fieldError("mtDate", false);
+  if(!valid){ toast("Please fix the highlighted fields","error"); return; }
+
+  const now = new Date().toISOString();
+  let t = id ? findTransaction(id) : {id: uid("tx"), createdAt: now};
+  t.type = document.getElementById("mtType").value;
+  t.amount = amount;
+  t.category = document.getElementById("mtCategory").value;
+  t.date = date;
+  t.description = document.getElementById("mtDescription").value.trim();
+  const link = document.getElementById("mtLink").value;
+  t.projectId = link.startsWith("p:") ? link.slice(2) : null;
+  t.experimentId = link.startsWith("e:") ? link.slice(2) : null;
+  t.paymentMethod = document.getElementById("mtPayment").value;
+  t.notes = document.getElementById("mtNotes").value.trim();
+
+  await dbPut("transactions", t);
+  if(!id) state.transactions.push(t);
+  closeModal();
+  toast(id?"Transaction updated":"Transaction added successfully.");
+  refreshCurrentPage();
+}
+
+function deleteTransactionConfirm(id){
+  const t = findTransaction(id); if(!t) return;
+  openConfirmModal({
+    title:"Delete transaction?",
+    body:'This permanently deletes this '+t.type+' of '+formatMoney(t.amount)+'. All related totals will update immediately.',
+    confirmLabel:"Delete transaction",
+    danger:true,
+    onConfirm: async ()=>{
+      await dbDelete("transactions", id);
+      state.transactions = state.transactions.filter(x=>x.id!==id);
+      closeModal();
+      toast("Transaction deleted.");
+      refreshCurrentPage();
+    }
+  });
+}
+
+function refreshCurrentPage(){
+  goPage(state.currentPage, {id: state.currentPage==="project-detail"?state.currentProjectId:state.currentExperimentId});
+}
+
+/* ---------- TASK MODAL ---------- */
+function openTaskModal(id, presetLink){
+  const t = id ? findTask(id) : null;
+  const isEdit = !!t;
+  const projVal = t ? (t.projectId||"") : (presetLink&&presetLink.projectId) || "";
+  const expVal = t ? (t.experimentId||"") : (presetLink&&presetLink.experimentId) || "";
+  const html = `
+  <div class="modal">
+    <div class="modal-head"><h3>${isEdit?"Edit task":"Add task"}</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="field full"><label>Title *</label><input class="input" id="mkTitle" value="${escapeHtml(t?t.title:"")}" placeholder="What needs doing?"><div class="form-error">Title is required.</div></div>
+      <div class="field full"><label>Description</label><textarea class="textarea" id="mkDescription" placeholder="Optional details">${escapeHtml(t?t.description:"")}</textarea></div>
+      <div class="form-grid">
+        <div class="field"><label>Project</label><select class="select" id="mkProject"><option value="">None</option>${state.projects.map(p=>'<option value="'+p.id+'"'+(projVal===p.id?' selected':'')+'>'+escapeHtml(p.name)+'</option>').join("")}</select></div>
+        <div class="field"><label>Experiment</label><select class="select" id="mkExperiment"><option value="">None</option>${state.experiments.map(e=>'<option value="'+e.id+'"'+(expVal===e.id?' selected':'')+'>'+escapeHtml(e.name)+'</option>').join("")}</select></div>
+        <div class="field"><label>Priority</label><select class="select" id="mkPriority">${PRIORITIES.map(p=>'<option'+(t&&t.priority===p?' selected':(!t&&p==="Medium"?' selected':''))+'>'+p+'</option>').join("")}</select></div>
+        <div class="field"><label>Due date</label><input type="date" class="input" id="mkDue" value="${t&&t.dueDate?t.dueDate:""}"></div>
+        <div class="field full" style="margin-bottom:0;"><label>Status</label><select class="select" id="mkStatus">${TASK_STATUSES.map(s=>'<option'+(t&&t.status===s?' selected':(!t&&s==="To Do"?' selected':''))+'>'+s+'</option>').join("")}</select></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      ${isEdit?'<button class="btn btn-danger" style="margin-right:auto;" onclick="deleteTaskConfirm(\''+t.id+'\')">Delete</button>':''}
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTaskFromModal(${isEdit?`'${t.id}'`:'null'})">${isEdit?"Save changes":"Add task"}</button>
+    </div>
+  </div>`;
+  showModal(html);
+}
+
+async function saveTaskFromModal(id){
+  const title = document.getElementById("mkTitle").value.trim();
+  if(!title){ fieldError("mkTitle", true); toast("Title is required","error"); return; }
+  fieldError("mkTitle", false);
+  const now = new Date().toISOString();
+  let t = id ? findTask(id) : {id: uid("task"), createdAt: now};
+  t.title = title;
+  t.description = document.getElementById("mkDescription").value.trim();
+  t.projectId = document.getElementById("mkProject").value || null;
+  t.experimentId = document.getElementById("mkExperiment").value || null;
+  t.priority = document.getElementById("mkPriority").value;
+  t.dueDate = document.getElementById("mkDue").value;
+  t.status = document.getElementById("mkStatus").value;
+  t.updatedAt = now;
+  await dbPut("tasks", t);
+  if(!id) state.tasks.push(t);
+  closeModal();
+  toast(id?"Task updated":"Task added successfully.");
+  refreshCurrentPage();
+}
+
+function cycleTaskStatus(id){
+  const t = findTask(id); if(!t) return;
+  const order = ["To Do","In Progress","Completed"];
+  const idx = order.indexOf(t.status);
+  t.status = order[(idx+1)%order.length];
+  t.updatedAt = new Date().toISOString();
+  dbPut("tasks", t).then(()=>{ toast("Task marked "+t.status.toLowerCase()); refreshCurrentPage(); });
+}
+
+function deleteTaskConfirm(id){
+  const t = findTask(id); if(!t) return;
+  openConfirmModal({
+    title:"Delete task?",
+    body:'This permanently deletes "'+t.title+'".',
+    confirmLabel:"Delete task",
+    danger:true,
+    onConfirm: async ()=>{
+      await dbDelete("tasks", id);
+      state.tasks = state.tasks.filter(x=>x.id!==id);
+      closeModal();
+      toast("Task deleted.");
+      refreshCurrentPage();
+    }
+  });
+}
+
+/* ---------- METRIC MODALS (custom metrics — projects & experiments) ---------- */
+function openMetricModal(type, id){
+  const html = `
+  <div class="modal modal-sm">
+    <div class="modal-head"><h3>Add metric</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="field full"><label>Metric name *</label><input class="input" id="mmeName" placeholder="e.g. TikTok Views"><div class="form-error">Metric name is required.</div></div>
+      <div class="field full" style="margin-bottom:0;"><label>Unit (optional)</label><input class="input" id="mmeUnit" placeholder="e.g. views, %, followers"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveMetric('${type}','${id}')">Add metric</button></div>
+  </div>`;
+  showModal(html);
+}
+async function saveMetric(type, id){
+  const name = document.getElementById("mmeName").value.trim();
+  if(!name){ fieldError("mmeName", true); return; }
+  const entity = getEntity(type, id); if(!entity) return;
+  if(!entity.metrics) entity.metrics = [];
+  entity.metrics.push({id: uid("metric"), name, unit: document.getElementById("mmeUnit").value.trim(), entries:[]});
+  entity.updatedAt = new Date().toISOString();
+  await dbPut(entityDbStore(type), entity);
+  closeModal(); toast("Metric added"); refreshEntityDetail(type, id);
+}
+function deleteMetric(type, id, metricId){
+  const entity = getEntity(type, id); if(!entity) return;
+  openConfirmModal({
+    title:"Delete metric?", body:"This removes the metric and all its dated entries.", confirmLabel:"Delete metric", danger:true,
+    onConfirm: async ()=>{
+      entity.metrics = (entity.metrics||[]).filter(m=>m.id!==metricId);
+      entity.updatedAt = new Date().toISOString();
+      await dbPut(entityDbStore(type), entity);
+      closeModal(); toast("Metric deleted"); refreshEntityDetail(type, id);
+    }
+  });
+}
+function openMetricEntryModal(type, id, metricId){
+  const html = `
+  <div class="modal modal-sm">
+    <div class="modal-head"><h3>Add entry</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="field full"><label>Date *</label><input type="date" class="input" id="mmeDate" value="${todayISO()}"></div>
+      <div class="field full" style="margin-bottom:0;"><label>Value *</label><input type="number" step="any" class="input" id="mmeValue" placeholder="0"><div class="form-error">Enter a value.</div></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveMetricEntry('${type}','${id}','${metricId}')">Add entry</button></div>
+  </div>`;
+  showModal(html);
+}
+async function saveMetricEntry(type, id, metricId){
+  const value = parseFloat(document.getElementById("mmeValue").value);
+  if(isNaN(value)){ fieldError("mmeValue", true); return; }
+  const entity = getEntity(type, id); if(!entity) return;
+  const m = (entity.metrics||[]).find(x=>x.id===metricId); if(!m) return;
+  if(!m.entries) m.entries = [];
+  m.entries.push({id: uid("entry"), date: document.getElementById("mmeDate").value || todayISO(), value});
+  entity.updatedAt = new Date().toISOString();
+  await dbPut(entityDbStore(type), entity);
+  closeModal(); toast("Entry added"); refreshEntityDetail(type, id);
+}
+function deleteMetricEntry(type, id, metricId, entryId){
+  const entity = getEntity(type, id); if(!entity) return;
+  const m = (entity.metrics||[]).find(x=>x.id===metricId); if(!m) return;
+  m.entries = (m.entries||[]).filter(x=>x.id!==entryId);
+  entity.updatedAt = new Date().toISOString();
+  dbPut(entityDbStore(type), entity).then(()=>{ toast("Entry removed"); refreshEntityDetail(type, id); });
+}
+
+/* ---------- ENGAGEMENT LOG MODAL ---------- */
+function openLogModal(experimentId){
+  const html = `
+  <div class="modal modal-lg">
+    <div class="modal-head"><h3>Add engagement entry</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Date *</label><input type="date" class="input" id="mlDate" value="${todayISO()}"></div>
+        <div class="field"><label>Video / Post label</label><input class="input" id="mlLabel" placeholder="e.g. Cinematic car edit #3"></div>
+        <div class="field"><label>Views</label><input type="number" min="0" class="input" id="mlViews" value="0"></div>
+        <div class="field"><label>Likes</label><input type="number" min="0" class="input" id="mlLikes" value="0"></div>
+        <div class="field"><label>Comments</label><input type="number" min="0" class="input" id="mlComments" value="0"></div>
+        <div class="field"><label>Shares</label><input type="number" min="0" class="input" id="mlShares" value="0"></div>
+        <div class="field full" style="margin-bottom:0;"><label>Followers gained</label><input type="number" min="0" class="input" id="mlFollowers" value="0"></div>
+      </div>
+      <p class="hint" style="margin-top:10px;">Money spent and revenue for this experiment are tracked in the Financials tab so totals stay accurate — this log is for engagement performance only.</p>
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveLogEntry('${experimentId}')">Add entry</button></div>
+  </div>`;
+  showModal(html);
+}
+async function saveLogEntry(experimentId){
+  const e = findExperiment(experimentId); if(!e) return;
+  if(!e.engagementLog) e.engagementLog = [];
+  e.engagementLog.push({
+    id: uid("log"), date: document.getElementById("mlDate").value || todayISO(),
+    label: document.getElementById("mlLabel").value.trim(),
+    views: parseFloat(document.getElementById("mlViews").value)||0,
+    likes: parseFloat(document.getElementById("mlLikes").value)||0,
+    comments: parseFloat(document.getElementById("mlComments").value)||0,
+    shares: parseFloat(document.getElementById("mlShares").value)||0,
+    followersGained: parseFloat(document.getElementById("mlFollowers").value)||0,
+  });
+  e.updatedAt = new Date().toISOString();
+  await dbPut("experiments", e);
+  closeModal(); toast("Entry logged"); renderExperimentDetail(experimentId);
+}
+function deleteLogEntry(experimentId, entryId){
+  const e = findExperiment(experimentId); if(!e) return;
+  e.engagementLog = (e.engagementLog||[]).filter(x=>x.id!==entryId);
+  e.updatedAt = new Date().toISOString();
+  dbPut("experiments", e).then(()=>{ toast("Entry removed"); renderExperimentDetail(experimentId); });
+}
+
+/* ---------- CONFIRM MODAL ---------- */
+function openConfirmModal(opts){
+  const html = `
+  <div class="modal modal-sm">
+    <div class="modal-head"><h3>${escapeHtml(opts.title)}</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body"><p style="font-size:13.5px;line-height:1.6;color:var(--text-secondary);">${escapeHtml(opts.body)}</p></div>
+    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn ${opts.danger?'btn-danger':'btn-primary'}" id="confirmActionBtn">${escapeHtml(opts.confirmLabel||"Confirm")}</button></div>
+  </div>`;
+  showModal(html);
+  document.getElementById("confirmActionBtn").addEventListener("click", opts.onConfirm);
+}
+
+/* ---------- PICKER MODAL (reports) ---------- */
+function openPickerModal(title, items, onPick){
+  const html = `
+  <div class="modal modal-sm">
+    <div class="modal-head"><h3>${escapeHtml(title)}</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body" style="padding:8px 10px;">
+      ${items.map(i=>'<div class="list-row row-clickable" style="padding:11px 10px;" data-pid="'+i.id+'"><div class="cell-title">'+escapeHtml(i.label)+'</div></div>').join("")}
+    </div>
+  </div>`;
+  showModal(html);
+  document.querySelectorAll('#activeModalBackdrop [data-pid]').forEach(row=>{
+    row.addEventListener("click", ()=>{ const id = row.getAttribute("data-pid"); closeModal(); onPick(id); });
+  });
+}
+function openMonthPickerModal(onPick){
+  const now = new Date();
+  const months = [];
+  for(let i=0;i<12;i++){ const d = new Date(now.getFullYear(), now.getMonth()-i, 1); months.push({id: d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"), label: d.toLocaleDateString(undefined,{month:"long",year:"numeric"})}); }
+  openPickerModal("Choose a month", months, onPick);
+}
+
+/* ---------- QUICK ADD MODAL ---------- */
+function openQuickAddModal(){
+  const html = `
+  <div class="modal modal-sm">
+    <div class="modal-head"><h3>Quick add</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body" style="display:flex; flex-direction:column; gap:8px;">
+      <button class="btn btn-secondary btn-block" style="justify-content:flex-start;" onclick="closeModal();openProjectModal();">${icon("folder")} New project</button>
+      <button class="btn btn-secondary btn-block" style="justify-content:flex-start;" onclick="closeModal();openExperimentModal();">${icon("flask")} New experiment</button>
+      <button class="btn btn-secondary btn-block" style="justify-content:flex-start;" onclick="closeModal();openTransactionModal();">${icon("net")} Add transaction</button>
+      <button class="btn btn-secondary btn-block" style="justify-content:flex-start;" onclick="closeModal();openTaskModal();">${icon("check")} Add task</button>
+    </div>
+  </div>`;
+  showModal(html);
+}
+
+/* ============================================================
+   20. GLOBAL SEARCH
+   ============================================================ */
+function runGlobalSearch(query){
+  const q = query.trim().toLowerCase();
+  const resultsEl = document.getElementById("searchResults");
+  if(!q){ resultsEl.classList.remove("open"); resultsEl.innerHTML=""; return; }
+
+  const projMatches = state.projects.filter(p=> (p.name||"").toLowerCase().includes(q) || (p.description||"").toLowerCase().includes(q)).slice(0,5);
+  const expMatches = state.experiments.filter(e=> (e.name||"").toLowerCase().includes(q) || (e.hypothesis||"").toLowerCase().includes(q)).slice(0,5);
+  const txMatches = state.transactions.filter(t=> (t.description||"").toLowerCase().includes(q) || (t.category||"").toLowerCase().includes(q)).slice(0,5);
+  const taskMatches = state.tasks.filter(t=> (t.title||"").toLowerCase().includes(q)).slice(0,5);
+
+  const groups = [
+    {label:"Projects", items:projMatches, render:(p)=>({title:p.name, sub:p.status, onclick:"openProject('"+p.id+"')"})},
+    {label:"Experiments", items:expMatches, render:(e)=>({title:e.name, sub:e.status, onclick:"openExperiment('"+e.id+"')"})},
+    {label:"Transactions", items:txMatches, render:(t)=>({title:t.description||t.category||"Transaction", sub:formatMoney(t.amount)+" · "+formatDate(t.date), onclick:"closeSearchAndOpenTx('"+t.id+"')"})},
+    {label:"Tasks", items:taskMatches, render:(t)=>({title:t.title, sub:t.status, onclick:"closeSearchAndOpenTask('"+t.id+"')"})},
+  ].filter(g=>g.items.length>0);
+
+  if(groups.length===0){ resultsEl.innerHTML = '<div class="sr-empty">No results for "'+escapeHtml(query)+'"</div>'; resultsEl.classList.add("open"); return; }
+
+  resultsEl.innerHTML = groups.map(g=>
+    '<div class="sr-group-label">'+g.label+'</div>' +
+    g.items.map(it=>{ const r = g.render(it); return '<div class="sr-item" onclick="'+r.onclick+'"><span>'+escapeHtml(r.title)+'</span><span class="sr-sub">'+escapeHtml(r.sub)+'</span></div>'; }).join("")
+  ).join("");
+  resultsEl.classList.add("open");
+}
+function closeSearchAndOpenTx(id){ closeSearchResults(); openTransactionModal(id); }
+function closeSearchAndOpenTask(id){ closeSearchResults(); goPage("tasks"); setTimeout(()=>openTaskModal(id), 50); }
+function closeSearchResults(){ document.getElementById("searchResults").classList.remove("open"); document.getElementById("globalSearch").value=""; }
+
+/* ============================================================
+   21. IMPORT / EXPORT / DEMO / CLEAR
+   ============================================================ */
+function exportAllData(){
+  const payload = {
+    exportedAt: new Date().toISOString(), appVersion: 1,
+    projects: state.projects, experiments: state.experiments,
+    transactions: state.transactions, tasks: state.tasks, settings: state.settings,
+  };
+  downloadFile("business-hub-backup_"+todayISO()+".json", JSON.stringify(payload, null, 2), "application/json");
+  toast("Data exported");
+}
+
+function triggerImport(){ document.getElementById("setImportFile").click(); }
+
+async function handleImportFile(file){
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if(!data || typeof data !== "object") throw new Error("Invalid file");
+    openConfirmModal({
+      title:"Import data?",
+      body:"This will replace all current data on this device with the contents of the selected backup. This cannot be undone.",
+      confirmLabel:"Import & replace",
+      danger:true,
+      onConfirm: async ()=>{
+        await dbClearAll();
+        const arr = (name)=> Array.isArray(data[name]) ? data[name] : [];
+        for(const p of arr("projects")) await dbPut("projects", p);
+        for(const e of arr("experiments")) await dbPut("experiments", e);
+        for(const t of arr("transactions")) await dbPut("transactions", t);
+        for(const t of arr("tasks")) await dbPut("tasks", t);
+        if(data.settings) await dbPut("settings", {key:"app", value:data.settings});
+        await loadAllData();
+        applySettingsToChrome();
+        closeModal();
+        toast("Data imported successfully.");
+        goPage("dashboard");
+      }
+    });
+  }catch(err){
+    toast("Could not read that file — is it a valid Business Hub backup?","error");
+  }
+}
+
+function clearAllDataConfirm(){
+  openConfirmModal({
+    title:"Clear all data?",
+    body:"This permanently deletes every project, experiment, transaction, and task on this device. Export a backup first if you want to keep a copy.",
+    confirmLabel:"Clear everything",
+    danger:true,
+    onConfirm: async ()=>{
+      await dbClearAll();
+      state.projects=[]; state.experiments=[]; state.transactions=[]; state.tasks=[];
+      closeModal();
+      toast("All data cleared.");
+      goPage("dashboard");
+    }
+  });
+}
+
+/* ============================================================
+   22. DEMO DATA
+   ============================================================ */
+async function seedDemoData(){
+  const now = new Date();
+  const daysAgo = (n)=> new Date(now.getTime()-n*86400000).toISOString().slice(0,10);
+
+  const proj1 = {
+    id: uid("proj"), name:"CarVideoTool", description:"A tool for editing cinematic car videos for social platforms.",
+    objective:"Reach 1,000 paying users within 6 months.", status:"Active", priority:"High",
+    startDate: daysAgo(60), targetDate: daysAgo(-120), budget: 250000, notes:"Focus on TikTok-first workflow.",
+    milestones:[
+      {id:uid("ms"), title:"Ship MVP editor", date:daysAgo(45), done:true},
+      {id:uid("ms"), title:"Launch on Play Store", date:daysAgo(10), done:true},
+      {id:uid("ms"), title:"Reach 100 paying users", date:daysAgo(-30), done:false},
+    ],
+    metrics:[
+      {id:uid("metric"), name:"Weekly Active Users", unit:"users", entries:[
+        {id:uid("entry"), date:daysAgo(21), value:64}, {id:uid("entry"), date:daysAgo(14), value:112},
+        {id:uid("entry"), date:daysAgo(7), value:189}, {id:uid("entry"), date:daysAgo(0), value:247},
+      ]},
+    ],
+    createdAt: daysAgo(60), updatedAt: daysAgo(2),
+  };
+  const proj2 = {
+    id: uid("proj"), name:"Backyard Harvest", description:"Casual mobile farming game — plant, grow, harvest, sell.",
+    objective:"Validate a simple, sellable game loop.", status:"Planning", priority:"Medium",
+    startDate: daysAgo(20), targetDate: daysAgo(-90), budget: 40000, notes:"",
+    milestones:[{id:uid("ms"), title:"Core planting loop playable", date:daysAgo(-14), done:false}],
+    createdAt: daysAgo(20), updatedAt: daysAgo(5),
+  };
+
+  const exp1 = {
+    id: uid("exp"), name:"TikTok User Reaction Test",
+    hypothesis:"Cinematic car videos will generate stronger engagement and follower growth than casual clips.",
+    objective:"Find the video style that drives the most followers per Kwacha spent.",
+    whatIsBeingTested:"Cinematic edit style vs casual handheld style",
+    method:"Post 3 cinematic and 3 casual car videos over two weeks, boost each with a small ad spend, and compare engagement.",
+    targetAudience:"18-30 year old car enthusiasts on TikTok",
+    startDate: daysAgo(14), endDate: daysAgo(-1), status:"Running",
+    successCriteria:"Cinematic videos achieve at least 2x the follower conversion rate of casual videos.",
+    variables:"Video editing style, thumbnail, posting time", conclusion:"", notes:"",
+    projectId: proj1.id,
+    metrics:[
+      {id:uid("metric"), name:"Followers gained", unit:"followers", entries:[
+        {id:uid("entry"), date:daysAgo(12), value:18}, {id:uid("entry"), date:daysAgo(9), value:34},
+        {id:uid("entry"), date:daysAgo(6), value:61}, {id:uid("entry"), date:daysAgo(3), value:95},
+      ]},
+    ],
+    engagementLog:[
+      {id:uid("log"), date:daysAgo(12), label:"Cinematic edit #1", views:12500, likes:980, comments:64, shares:142, followersGained:38},
+      {id:uid("log"), date:daysAgo(9), label:"Casual clip #1", views:6200, likes:210, comments:18, shares:22, followersGained:9},
+      {id:uid("log"), date:daysAgo(6), label:"Cinematic edit #2", views:24100, likes:2100, comments:151, shares:390, followersGained:71},
+      {id:uid("log"), date:daysAgo(3), label:"Casual clip #2", views:5400, likes:180, comments:12, shares:15, followersGained:6},
+    ],
+    createdAt: daysAgo(14), updatedAt: daysAgo(2),
+  };
+  const exp2 = {
+    id: uid("exp"), name:"Landing page pricing test",
+    hypothesis:"A one-time-purchase price will convert better than a subscription for this audience.",
+    objective:"Decide on final pricing model before launch.",
+    whatIsBeingTested:"One-time $9.99 vs $2.99/month subscription",
+    method:"Split traffic 50/50 between two landing page variants for two weeks.",
+    targetAudience:"Website visitors from ad campaigns",
+    startDate: daysAgo(10), endDate: daysAgo(-4), status:"Planned",
+    successCriteria:"Variant with higher conversion rate at similar 30-day revenue wins.",
+    variables:"Price display, checkout copy", conclusion:"", notes:"",
+    projectId: null, metrics:[], engagementLog:[],
+    createdAt: daysAgo(10), updatedAt: daysAgo(10),
+  };
+
+  const tx = [
+    {id:uid("tx"), type:"expense", amount:15000, category:"Hosting", description:"Website hosting", date:daysAgo(55), projectId:proj1.id, experimentId:null, paymentMethod:"Mobile money", notes:"", createdAt:daysAgo(55)},
+    {id:uid("tx"), type:"income", amount:85000, category:"Sales", description:"App subscriptions", date:daysAgo(8), projectId:proj1.id, experimentId:null, paymentMethod:"Card", notes:"", createdAt:daysAgo(8)},
+    {id:uid("tx"), type:"expense", amount:12000, category:"Advertising", description:"TikTok boost spend", date:daysAgo(11), projectId:null, experimentId:exp1.id, paymentMethod:"Card", notes:"", createdAt:daysAgo(11)},
+    {id:uid("tx"), type:"expense", amount:6000, category:"Advertising", description:"TikTok boost spend wk2", date:daysAgo(5), projectId:null, experimentId:exp1.id, paymentMethod:"Card", notes:"", createdAt:daysAgo(5)},
+    {id:uid("tx"), type:"income", amount:9000, category:"Sales", description:"Referral sales from campaign", date:daysAgo(2), projectId:null, experimentId:exp1.id, paymentMethod:"Mobile money", notes:"", createdAt:daysAgo(2)},
+    {id:uid("tx"), type:"expense", amount:8000, category:"Software/Tools", description:"Game engine asset pack", date:daysAgo(15), projectId:proj2.id, experimentId:null, paymentMethod:"Card", notes:"", createdAt:daysAgo(15)},
+    {id:uid("tx"), type:"expense", amount:3500, category:"Fees", description:"Domain renewal", date:daysAgo(30), projectId:null, experimentId:null, paymentMethod:"Bank transfer", notes:"General business cost", createdAt:daysAgo(30)},
+  ];
+
+  const tasks = [
+    {id:uid("task"), title:"Fix crash on Android 12", description:"Reported by 3 users in reviews.", projectId:proj1.id, experimentId:null, priority:"High", dueDate:daysAgo(-2), status:"In Progress", createdAt:daysAgo(5), updatedAt:daysAgo(1)},
+    {id:uid("task"), title:"Design app icon v2", description:"", projectId:proj1.id, experimentId:null, priority:"Medium", dueDate:daysAgo(-7), status:"To Do", createdAt:daysAgo(5), updatedAt:daysAgo(5)},
+    {id:uid("task"), title:"Write TikTok captions batch 2", description:"", projectId:null, experimentId:exp1.id, priority:"Medium", dueDate:daysAgo(-1), status:"To Do", createdAt:daysAgo(6), updatedAt:daysAgo(6)},
+    {id:uid("task"), title:"Prototype planting mechanic", description:"", projectId:proj2.id, experimentId:null, priority:"High", dueDate:daysAgo(-10), status:"Completed", createdAt:daysAgo(18), updatedAt:daysAgo(3)},
+    {id:uid("task"), title:"Draft pricing page copy", description:"", projectId:null, experimentId:exp2.id, priority:"Low", dueDate:daysAgo(-5), status:"To Do", createdAt:daysAgo(9), updatedAt:daysAgo(9)},
+  ];
+
+  for(const p of [proj1,proj2]) await dbPut("projects", p);
+  for(const e of [exp1,exp2]) await dbPut("experiments", e);
+  for(const t of tx) await dbPut("transactions", t);
+  for(const t of tasks) await dbPut("tasks", t);
+
+  await loadAllData();
+  toast("Demo data loaded");
+  goPage(state.currentPage==="settings" ? "settings" : "dashboard");
+}
+
+/* ============================================================
+   23. EVENT WIRING
+   ============================================================ */
+function wireEvents(){
+  // Delegated navigation — any element with data-page
+  document.addEventListener("click", (e)=>{
+    const navEl = e.target.closest("[data-page]");
+    if(navEl){ goPage(navEl.dataset.page); }
+  });
+
+  // Delegated tab switching
+  document.addEventListener("click", (e)=>{
+    const tabEl = e.target.closest(".tab");
+    if(tabEl){ const root = tabEl.closest(".tabs"); switchTab(root.id, tabEl.dataset.tab); }
+  });
+
+  // Mobile sidebar
+  document.getElementById("menuToggle").addEventListener("click", openMobileSidebar);
+  document.getElementById("sidebarScrim").addEventListener("click", closeMobileSidebar);
+  document.getElementById("mnavMore").addEventListener("click", openMobileSidebar);
+
+  // Quick add
+  document.getElementById("quickAddBtn").addEventListener("click", openQuickAddModal);
+
+  // Global search
+  const searchInput = document.getElementById("globalSearch");
+  searchInput.addEventListener("input", debounce((e)=>runGlobalSearch(e.target.value), 150));
+  searchInput.addEventListener("focus", (e)=>{ if(e.target.value.trim()) runGlobalSearch(e.target.value); });
+  document.addEventListener("click", (e)=>{ if(!e.target.closest("#searchWrap")) document.getElementById("searchResults").classList.remove("open"); });
+
+  // Dashboard
+  document.getElementById("dashDemoBtn").addEventListener("click", seedDemoData);
+  document.getElementById("dashAddTxBtn").addEventListener("click", ()=>openTransactionModal());
+
+  // Projects list
+  document.getElementById("newProjectBtn").addEventListener("click", ()=>openProjectModal());
+  document.getElementById("projFilterStatus").addEventListener("change", renderProjectsList);
+  document.getElementById("projFilterSort").addEventListener("change", renderProjectsList);
+
+  // Experiments list
+  document.getElementById("newExperimentBtn").addEventListener("click", ()=>openExperimentModal());
+  document.getElementById("expFilterStatus").addEventListener("change", renderExperimentsList);
+  document.getElementById("expFilterSort").addEventListener("change", renderExperimentsList);
+
+  // Project detail
+  document.getElementById("pdEditBtn").addEventListener("click", ()=>openProjectModal(state.currentProjectId));
+  document.getElementById("pdDeleteBtn").addEventListener("click", ()=>deleteProjectConfirm(state.currentProjectId));
+  document.getElementById("pdAddTxBtn").addEventListener("click", ()=>openTransactionModal(null, {projectId: state.currentProjectId}));
+  document.getElementById("pdAddTaskBtn").addEventListener("click", ()=>openTaskModal(null, {projectId: state.currentProjectId}));
+  document.getElementById("pdAddMilestoneBtn").addEventListener("click", ()=>openMilestoneModal(state.currentProjectId));
+  document.getElementById("pdAddMetricBtn").addEventListener("click", ()=>openMetricModal("projects", state.currentProjectId));
+  document.getElementById("pdAddExperimentBtn").addEventListener("click", ()=>openExperimentModal(null, state.currentProjectId));
+  document.getElementById("pdSaveNotesBtn").addEventListener("click", async ()=>{
+    const p = findProject(state.currentProjectId); if(!p) return;
+    p.notes = document.getElementById("pdNotesArea").value;
+    p.updatedAt = new Date().toISOString();
+    await dbPut("projects", p);
+    toast("Notes saved");
+  });
+
+  // Experiment detail
+  document.getElementById("edEditBtn").addEventListener("click", ()=>openExperimentModal(state.currentExperimentId));
+  document.getElementById("edDeleteBtn").addEventListener("click", ()=>deleteExperimentConfirm(state.currentExperimentId));
+  document.getElementById("edAddMetricBtn").addEventListener("click", ()=>openMetricModal("experiments", state.currentExperimentId));
+  document.getElementById("edAddLogBtn").addEventListener("click", ()=>openLogModal(state.currentExperimentId));
+  document.getElementById("edAddTxBtn").addEventListener("click", ()=>openTransactionModal(null, {experimentId: state.currentExperimentId}));
+  document.getElementById("edSaveNotesBtn").addEventListener("click", async ()=>{
+    const e = findExperiment(state.currentExperimentId); if(!e) return;
+    e.conclusion = document.getElementById("edConclusionArea").value;
+    e.notes = document.getElementById("edNotesArea").value;
+    e.updatedAt = new Date().toISOString();
+    await dbPut("experiments", e);
+    toast("Saved");
+  });
+
+  // Finances
+  document.getElementById("finAddTxBtn").addEventListener("click", ()=>openTransactionModal());
+  ["finFilterType","finFilterCategory","finFilterLink","finFilterFrom","finFilterTo"].forEach(id=>{
+    document.getElementById(id).addEventListener("change", renderFinances);
+  });
+  document.getElementById("finFilterReset").addEventListener("click", ()=>{
+    ["finFilterType","finFilterCategory","finFilterLink","finFilterFrom","finFilterTo"].forEach(id=>document.getElementById(id).value="");
+    renderFinances();
+  });
+  document.getElementById("finExportCsvBtn").addEventListener("click", exportTransactionsCsv);
+
+  // Tasks
+  document.getElementById("tasksAddBtn").addEventListener("click", ()=>openTaskModal());
+  ["taskFilterStatus","taskFilterPriority","taskFilterLink"].forEach(id=>{
+    document.getElementById(id).addEventListener("change", renderTasksPage);
+  });
+
+  // Reports
+  document.getElementById("reportPrintBtn").addEventListener("click", ()=>{
+    document.getElementById("page-reports").classList.add("print-active");
+    window.print();
+  });
+  window.addEventListener("afterprint", ()=>{ document.getElementById("page-reports").classList.remove("print-active"); });
+  document.getElementById("reportExportBtn").addEventListener("click", ()=>{
+    if(!currentReportData) return;
+    downloadFile("report_"+currentReportData.type+"_"+todayISO()+".json", JSON.stringify(currentReportData,null,2), "application/json");
+    toast("Report exported");
+  });
+
+  // Settings
+  document.getElementById("setSaveBtn").addEventListener("click", saveSettingsFromForm);
+  document.getElementById("setExportBtn").addEventListener("click", exportAllData);
+  document.getElementById("setImportBtn").addEventListener("click", triggerImport);
+  document.getElementById("setImportFile").addEventListener("change", (e)=>handleImportFile(e.target.files[0]));
+  document.getElementById("setDemoBtn").addEventListener("click", seedDemoData);
+  document.getElementById("setClearBtn").addEventListener("click", clearAllDataConfirm);
+}
+
+/* ============================================================
+   24. INIT
+   ============================================================ */
+async function initApp(){
+  try{
+    await dbOpen();
+    await loadAllData();
+  }catch(err){
+    console.error("Database error", err);
+    toast("Could not open local storage on this device/browser.","error");
+  }
+  applySettingsToChrome();
+  wireEvents();
+  goPage("dashboard");
+}
+
+document.addEventListener("DOMContentLoaded", initApp);
+</script>
+</body>
+</html>
