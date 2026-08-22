@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <title>Business Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    DESIGN TOKENS
@@ -37,6 +40,8 @@
   --info:#1d4ed8;
   --info-soft:#eaf0fd;
 
+  --topbar-bg:rgba(243,244,246,.88);
+
   --radius-sm:8px;
   --radius-md:12px;
   --radius-lg:18px;
@@ -47,14 +52,50 @@
   --shadow-md:0 8px 24px rgba(16,20,24,0.08);
   --shadow-lg:0 16px 40px rgba(16,20,24,0.14);
 
-  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  --font-mono:"SF Mono",SFMono-Regular,Consolas,"Roboto Mono",Menlo,monospace;
+  --font-sans:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:"JetBrains Mono","SF Mono",SFMono-Regular,Consolas,"Roboto Mono",Menlo,monospace;
 
   --sidebar-w:236px;
   --sidebar-w-collapsed:76px;
   --topbar-h:64px;
   --ease:cubic-bezier(.4,0,.2,1);
 }
+
+/* ============================================================
+   DARK THEME — overrides the tokens above when active
+   ============================================================ */
+html[data-theme="dark"]{
+  --bg:#0e1013;
+  --surface:#16181d;
+  --surface-2:#1e2127;
+  --border:#2a2d34;
+  --border-soft:#24262c;
+
+  --text-primary:#eef0f2;
+  --text-secondary:#9aa0ab;
+  --text-tertiary:#6f7480;
+
+  --positive:#4ade80;
+  --positive-soft:rgba(74,222,128,.14);
+  --negative:#f87171;
+  --negative-soft:rgba(248,113,113,.14);
+  --warning:#fbbf24;
+  --warning-soft:rgba(251,191,36,.14);
+  --info:#60a5fa;
+  --info-soft:rgba(96,165,250,.14);
+
+  --topbar-bg:rgba(14,16,19,.88);
+
+  --shadow-xs:0 1px 2px rgba(0,0,0,0.3);
+  --shadow-sm:0 2px 6px rgba(0,0,0,0.32);
+  --shadow-md:0 8px 24px rgba(0,0,0,0.4);
+  --shadow-lg:0 16px 40px rgba(0,0,0,0.55);
+}
+html[data-theme="dark"] .select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236f7480'/%3E%3C/svg%3E");
+}
+html[data-theme="dark"] .modal-backdrop{background:rgba(0,0,0,.6);}
+html[data-theme="dark"] table.data-table th{background:var(--surface);}
 
 *,*::before,*::after{box-sizing:border-box;}
 html,body{height:100%;}
@@ -77,7 +118,7 @@ input,select,textarea{font-family:inherit;}
 /* Scrollbars (desktop) */
 ::-webkit-scrollbar{width:8px;height:8px;}
 ::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:#d7dade;border-radius:8px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px;}
 
 /* Focus visibility */
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{
@@ -167,7 +208,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .topbar{
   height:var(--topbar-h); flex-shrink:0;
   display:flex; align-items:center; gap:14px;
-  padding:0 24px; background:rgba(243,244,246,.88);
+  padding:0 24px; background:var(--topbar-bg);
   backdrop-filter:blur(8px);
   position:sticky; top:0; z-index:30;
   border-bottom:1px solid var(--border-soft);
@@ -928,33 +969,68 @@ table.data-table tbody tr:last-child td{border-bottom:none;}
         <div class="page-header">
           <div>
             <h1>Finances</h1>
-            <div class="sub">Every income and expense across your business</div>
-          </div>
-          <button class="btn btn-primary btn-sm" id="finAddTxBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-            Add transaction
-          </button>
-        </div>
-
-        <div class="grid grid-kpi" id="finKpis" style="margin-bottom:18px;"></div>
-
-        <div class="card" style="margin-bottom:16px;">
-          <div class="card-pad filter-bar" style="margin-bottom:0;">
-            <select class="select" id="finFilterType"><option value="">All types</option><option value="income">Income</option><option value="expense">Expense</option></select>
-            <select class="select" id="finFilterCategory"><option value="">All categories</option></select>
-            <select class="select" id="finFilterLink"><option value="">All links</option></select>
-            <input type="date" class="input" id="finFilterFrom" title="From date">
-            <input type="date" class="input" id="finFilterTo" title="To date">
-            <button class="btn btn-ghost btn-sm" id="finFilterReset">Reset</button>
-            <div class="topbar-spacer"></div>
-            <button class="btn btn-secondary btn-sm" id="finExportCsvBtn">Export CSV</button>
+            <div class="sub">Income, expenses, and money lent or borrowed</div>
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-pad table-wrap" id="finTxTable"></div>
+        <div class="tabs" id="finTabs">
+          <div class="tab active" data-tab="transactions">Transactions</div>
+          <div class="tab" data-tab="loans">Loans &amp; Debts</div>
+        </div>
+
+        <div class="tabpanel active" data-panel="transactions">
+          <div class="page-header" style="margin-bottom:14px;">
+            <div class="sub" style="margin-top:0;">Every income and expense across your business</div>
+            <button class="btn btn-primary btn-sm" id="finAddTxBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Add transaction
+            </button>
+          </div>
+
+          <div class="grid grid-kpi" id="finKpis" style="margin-bottom:18px;"></div>
+
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-pad filter-bar" style="margin-bottom:0;">
+              <select class="select" id="finFilterType"><option value="">All types</option><option value="income">Income</option><option value="expense">Expense</option></select>
+              <select class="select" id="finFilterCategory"><option value="">All categories</option></select>
+              <select class="select" id="finFilterLink"><option value="">All links</option></select>
+              <input type="date" class="input" id="finFilterFrom" title="From date">
+              <input type="date" class="input" id="finFilterTo" title="To date">
+              <button class="btn btn-ghost btn-sm" id="finFilterReset">Reset</button>
+              <div class="topbar-spacer"></div>
+              <button class="btn btn-secondary btn-sm" id="finExportCsvBtn">Export CSV</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-pad table-wrap" id="finTxTable"></div>
+          </div>
+        </div>
+
+        <div class="tabpanel" data-panel="loans">
+          <div class="page-header" style="margin-bottom:14px;">
+            <div class="sub" style="margin-top:0;">Track money you've loaned out and money you've borrowed — kept separate from income &amp; expenses</div>
+            <button class="btn btn-primary btn-sm" id="loanAddBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Add loan / debt
+            </button>
+          </div>
+
+          <div class="grid grid-kpi" id="loanKpis" style="margin-bottom:18px;"></div>
+
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-pad filter-bar" style="margin-bottom:0;">
+              <select class="select" id="loanFilterDirection"><option value="">All</option><option value="lent">You lent</option><option value="borrowed">You borrowed</option></select>
+              <select class="select" id="loanFilterStatus"><option value="">All statuses</option><option>Outstanding</option><option>Partially Repaid</option><option>Repaid</option></select>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-pad table-wrap" id="loanTable"></div>
+          </div>
         </div>
       </section>
+
 
       <!-- ============ ANALYTICS ============ -->
       <section class="page" id="page-analytics">
@@ -1090,8 +1166,8 @@ table.data-table tbody tr:last-child td{border-bottom:none;}
    1. CONSTANTS
    ============================================================ */
 const DB_NAME = "business_hub_db";
-const DB_VERSION = 1;
-const STORES = ["projects","experiments","transactions","tasks","settings"];
+const DB_VERSION = 2;
+const STORES = ["projects","experiments","transactions","tasks","loans","settings"];
 
 const CURRENCY_SYMBOLS = {MWK:"MWK",USD:"$",GBP:"£",EUR:"€",ZAR:"R",KES:"KSh",NGN:"₦",ZMW:"ZK"};
 
@@ -1102,6 +1178,7 @@ const PRIORITIES = ["Low","Medium","High"];
 const EXPENSE_CATEGORIES = ["Hosting","Marketing","Advertising","Software/Tools","Equipment","Contractors","Content","Travel","Fees","Other"];
 const INCOME_CATEGORIES = ["Sales","Subscriptions","Services","Sponsorship","Grants","Investment","Other"];
 const PAYMENT_METHODS = ["Cash","Bank transfer","Mobile money","Card","Other"];
+const LOAN_DIRECTIONS = ["lent","borrowed"]; // lent = you loaned money out, borrowed = you borrowed money
 
 let CHART_INSTANCES = {}; // canvasId -> Chart instance, so we can destroy before re-render
 
@@ -1119,6 +1196,7 @@ function dbOpen(){
       if(!db.objectStoreNames.contains("experiments")) db.createObjectStore("experiments",{keyPath:"id"});
       if(!db.objectStoreNames.contains("transactions")) db.createObjectStore("transactions",{keyPath:"id"});
       if(!db.objectStoreNames.contains("tasks")) db.createObjectStore("tasks",{keyPath:"id"});
+      if(!db.objectStoreNames.contains("loans")) db.createObjectStore("loans",{keyPath:"id"});
       if(!db.objectStoreNames.contains("settings")) db.createObjectStore("settings",{keyPath:"key"});
     };
     req.onsuccess = (e)=>{ DB = e.target.result; resolve(DB); };
@@ -1167,7 +1245,7 @@ function dbClearAll(){
    3. STATE
    ============================================================ */
 const state = {
-  projects:[], experiments:[], transactions:[], tasks:[],
+  projects:[], experiments:[], transactions:[], tasks:[], loans:[],
   settings:{currency:"MWK", theme:"light", businessName:"My Business"},
   currentPage:"dashboard",
   currentProjectId:null,
@@ -1175,11 +1253,11 @@ const state = {
 };
 
 async function loadAllData(){
-  const [projects, experiments, transactions, tasks, settingsRows] = await Promise.all([
-    dbGetAll("projects"), dbGetAll("experiments"), dbGetAll("transactions"), dbGetAll("tasks"), dbGetAll("settings")
+  const [projects, experiments, transactions, tasks, loans, settingsRows] = await Promise.all([
+    dbGetAll("projects"), dbGetAll("experiments"), dbGetAll("transactions"), dbGetAll("tasks"), dbGetAll("loans"), dbGetAll("settings")
   ]);
   state.projects = projects; state.experiments = experiments;
-  state.transactions = transactions; state.tasks = tasks;
+  state.transactions = transactions; state.tasks = tasks; state.loans = loans;
   const settingsRow = settingsRows.find(r=>r.key==="app");
   if(settingsRow) state.settings = Object.assign(state.settings, settingsRow.value);
 }
@@ -1332,6 +1410,27 @@ function findProject(id){ return state.projects.find(p=>p.id===id); }
 function findExperiment(id){ return state.experiments.find(e=>e.id===id); }
 function findTransaction(id){ return state.transactions.find(t=>t.id===id); }
 function findTask(id){ return state.tasks.find(t=>t.id===id); }
+function findLoan(id){ return state.loans.find(l=>l.id===id); }
+
+/* ---- Loans & Debts (money lent to others / borrowed from others) ----
+   These are balance-sheet items, not income/expense — kept in their own
+   store so they never distort Revenue, Spending, or ROI totals. */
+function loanRepaid(loan){ return (loan.repayments||[]).reduce((s,r)=>s+(Number(r.amount)||0),0); }
+function loanRemaining(loan){ return Math.max(0, (Number(loan.amount)||0) - loanRepaid(loan)); }
+function loanStatus(loan){
+  const remaining = loanRemaining(loan);
+  if(remaining<=0) return "Repaid";
+  return loanRepaid(loan)>0 ? "Partially Repaid" : "Outstanding";
+}
+function loansSummary(){
+  let lentOutstanding=0, borrowedOutstanding=0, lentTotal=0, borrowedTotal=0;
+  state.loans.forEach(l=>{
+    const remaining = loanRemaining(l);
+    if(l.direction==="lent"){ lentOutstanding += remaining; lentTotal += Number(l.amount)||0; }
+    else { borrowedOutstanding += remaining; borrowedTotal += Number(l.amount)||0; }
+  });
+  return { lentOutstanding, borrowedOutstanding, lentTotal, borrowedTotal, net: lentOutstanding-borrowedOutstanding };
+}
 
 function statusBadgeClass(status){
   const map = {
@@ -1415,10 +1514,23 @@ function destroyChart(canvasId){
   if(CHART_INSTANCES[canvasId]){ try{ CHART_INSTANCES[canvasId].destroy(); }catch(e){} delete CHART_INSTANCES[canvasId]; }
 }
 
-const CHART_PALETTE = ["#14161a","#2b6df6","#15803d","#a5620a","#c0242c","#6b7280","#7c3aed","#0891b2"];
+const CHART_PALETTE_LIGHT = ["#14161a","#2b6df6","#15803d","#a5620a","#c0242c","#6b7280","#7c3aed","#0891b2"];
+const CHART_PALETTE_DARK  = ["#e5e7eb","#60a5fa","#4ade80","#fbbf24","#f87171","#9aa0ab","#a78bfa","#22d3ee"];
+function chartPalette(){ return isDarkTheme() ? CHART_PALETTE_DARK : CHART_PALETTE_LIGHT; }
+function isDarkTheme(){ return state.settings.theme === "dark"; }
+function chartTextColor(){ return isDarkTheme() ? "#9aa0ab" : "#6b7280"; }
+function chartGridColor(){ return isDarkTheme() ? "#24262c" : "#eef0f2"; }
+function chartNetLineColor(){ return isDarkTheme() ? "#e5e7eb" : "#14161a"; }
+function chartCardBg(){ return isDarkTheme() ? "#16181d" : "#ffffff"; }
 
 function baseChartFont(){
   return {family:getComputedStyle(document.body).fontFamily, size:11};
+}
+function baseTicks(extra){
+  return Object.assign({font:baseChartFont(), color:chartTextColor()}, extra||{});
+}
+function baseLegendLabels(){
+  return {boxWidth:8, boxHeight:8, usePointStyle:true, font:baseChartFont(), color:chartTextColor()};
 }
 
 function emptyChartMsg(container, msg){
@@ -1464,21 +1576,22 @@ function renderFinanceLineChart(canvasId, list, emptyContainerEl){
   if(emptyContainerEl) emptyContainerEl.innerHTML = "";
   const {labels, income, expense} = groupTxSeries(list);
   const net = income.map((v,i)=>v-expense[i]);
+  const dark = isDarkTheme();
   CHART_INSTANCES[canvasId] = new Chart(canvas.getContext("2d"), {
     type:"line",
     data:{ labels, datasets:[
-      {label:"Income", data:income, borderColor:"#15803d", backgroundColor:"rgba(21,128,61,.08)", tension:.35, fill:true, pointRadius:0, borderWidth:2},
-      {label:"Expense", data:expense, borderColor:"#c0242c", backgroundColor:"rgba(192,36,44,.06)", tension:.35, fill:true, pointRadius:0, borderWidth:2},
-      {label:"Net", data:net, borderColor:"#14161a", borderDash:[4,3], tension:.35, fill:false, pointRadius:0, borderWidth:1.5},
+      {label:"Income", data:income, borderColor: dark?"#4ade80":"#15803d", backgroundColor: dark?"rgba(74,222,128,.10)":"rgba(21,128,61,.08)", tension:.35, fill:true, pointRadius:0, borderWidth:2},
+      {label:"Expense", data:expense, borderColor: dark?"#f87171":"#c0242c", backgroundColor: dark?"rgba(248,113,113,.08)":"rgba(192,36,44,.06)", tension:.35, fill:true, pointRadius:0, borderWidth:2},
+      {label:"Net", data:net, borderColor: chartNetLineColor(), borderDash:[4,3], tension:.35, fill:false, pointRadius:0, borderWidth:1.5},
     ]},
     options:{
       responsive:true, maintainAspectRatio:false,
       interaction:{mode:"index", intersect:false},
-      plugins:{ legend:{display:true, position:"top", align:"end", labels:{boxWidth:8, boxHeight:8, usePointStyle:true, font:baseChartFont()}},
+      plugins:{ legend:{display:true, position:"top", align:"end", labels:baseLegendLabels()},
         tooltip:{callbacks:{label:(ctx)=> ctx.dataset.label+": "+formatMoney(ctx.parsed.y)}} },
       scales:{
-        x:{grid:{display:false}, ticks:{font:baseChartFont()}},
-        y:{grid:{color:"#eef0f2"}, ticks:{font:baseChartFont(), callback:(v)=>currencySymbol()+" "+formatNum(v)}}
+        x:{grid:{display:false}, ticks:baseTicks()},
+        y:{grid:{color:chartGridColor()}, ticks:baseTicks({callback:(v)=>currencySymbol()+" "+formatNum(v)})}
       }
     }
   });
@@ -1509,9 +1622,9 @@ function renderBarChartSimple(canvasId, labels, values, colorFn, emptyEl, emptyM
   canvas.style.display=""; if(emptyEl) emptyEl.innerHTML="";
   CHART_INSTANCES[canvasId] = new Chart(canvas.getContext("2d"), {
     type:"bar",
-    data:{ labels, datasets:[{data:values, backgroundColor: labels.map((_,i)=>colorFn?colorFn(values[i],i):"#14161a"), borderRadius:5, maxBarThickness:34}] },
+    data:{ labels, datasets:[{data:values, backgroundColor: labels.map((_,i)=>colorFn?colorFn(values[i],i):chartNetLineColor()), borderRadius:5, maxBarThickness:34}] },
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:(ctx)=>formatMoney(ctx.parsed.y)}}},
-      scales:{ x:{grid:{display:false}, ticks:{font:baseChartFont()}}, y:{grid:{color:"#eef0f2"}, ticks:{font:baseChartFont(), callback:(v)=>currencySymbol()+" "+formatNum(v)}} } }
+      scales:{ x:{grid:{display:false}, ticks:baseTicks()}, y:{grid:{color:chartGridColor()}, ticks:baseTicks({callback:(v)=>currencySymbol()+" "+formatNum(v)})} } }
   });
 }
 
@@ -1527,9 +1640,9 @@ function renderDoughnutChart(canvasId, labels, values, emptyEl, emptyMsg){
   canvas.style.display=""; if(emptyEl) emptyEl.innerHTML="";
   CHART_INSTANCES[canvasId] = new Chart(canvas.getContext("2d"), {
     type:"doughnut",
-    data:{ labels, datasets:[{data:values, backgroundColor:CHART_PALETTE, borderWidth:2, borderColor:"#fff"}] },
+    data:{ labels, datasets:[{data:values, backgroundColor:chartPalette(), borderWidth:2, borderColor:chartCardBg()}] },
     options:{ responsive:true, maintainAspectRatio:false, cutout:"68%",
-      plugins:{ legend:{display:true, position:"right", labels:{boxWidth:8,boxHeight:8,usePointStyle:true, font:baseChartFont()}},
+      plugins:{ legend:{display:true, position:"right", labels:baseLegendLabels()},
         tooltip:{callbacks:{label:(ctx)=> ctx.label+": "+formatMoney(ctx.parsed)}} } }
   });
 }
@@ -1545,11 +1658,13 @@ function renderMetricLineChart(canvasId, entries, unit, emptyEl){
     return;
   }
   canvas.style.display=""; if(emptyEl) emptyEl.innerHTML="";
+  const dark = isDarkTheme();
+  const lineColor = dark ? "#60a5fa" : "#2b6df6";
   CHART_INSTANCES[canvasId] = new Chart(canvas.getContext("2d"), {
     type:"line",
-    data:{ labels:sorted.map(e=>formatDateShort(e.date)), datasets:[{data:sorted.map(e=>Number(e.value)||0), borderColor:"#2b6df6", backgroundColor:"rgba(43,109,246,.08)", fill:true, tension:.3, pointRadius:3, pointBackgroundColor:"#2b6df6"}] },
+    data:{ labels:sorted.map(e=>formatDateShort(e.date)), datasets:[{data:sorted.map(e=>Number(e.value)||0), borderColor:lineColor, backgroundColor: dark?"rgba(96,165,250,.10)":"rgba(43,109,246,.08)", fill:true, tension:.3, pointRadius:3, pointBackgroundColor:lineColor}] },
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:(ctx)=>formatNum(ctx.parsed.y)+(unit?(" "+unit):"")}}},
-      scales:{ x:{grid:{display:false}, ticks:{font:baseChartFont()}}, y:{grid:{color:"#eef0f2"}, ticks:{font:baseChartFont()}} } }
+      scales:{ x:{grid:{display:false}, ticks:baseTicks()}, y:{grid:{color:chartGridColor()}, ticks:baseTicks()} } }
   });
 }
 
@@ -1678,9 +1793,18 @@ function renderDashboard(){
   if(openTasks.length===0){ snapHtml += '<p style="font-size:12.5px;color:var(--text-tertiary);">Nothing due soon.</p>'; }
   else { openTasks.forEach(t=>{ const overdue = new Date(t.dueDate) < new Date(todayISO()); snapHtml += '<div class="list-row"><div><div class="cell-title" style="font-size:12.5px;">'+escapeHtml(t.title)+'</div><div class="cell-sub">'+(overdue?'<span style="color:var(--negative);font-weight:700;">Overdue</span> · ':'')+formatDate(t.dueDate)+'</div></div><span class="badge '+priorityBadgeClass(t.priority)+'">'+t.priority+'</span></div>'; }); }
   snapHtml += '</div>';
-  snapHtml += '<div class="section-block" style="margin-bottom:0;"><h3 style="margin-bottom:8px;">Budget alerts</h3>';
+  snapHtml += '<div class="section-block">';
+  snapHtml += '<h3 style="margin-bottom:8px;">Budget alerts</h3>';
   if(overBudget.length===0){ snapHtml += '<p style="font-size:12.5px;color:var(--text-tertiary);">All projects within budget.</p>'; }
   else { overBudget.forEach(p=>{ snapHtml += '<div class="list-row"><div class="cell-title" style="font-size:12.5px;">'+escapeHtml(p.name)+'</div><span class="badge badge-red">Over budget</span></div>'; }); }
+  snapHtml += '</div>';
+  const loans = loansSummary();
+  snapHtml += '<div class="section-block" style="margin-bottom:0;"><h3 style="margin-bottom:8px;">Loans &amp; debts</h3>';
+  if(state.loans.length===0){ snapHtml += '<p style="font-size:12.5px;color:var(--text-tertiary);">Nothing recorded yet.</p>'; }
+  else {
+    snapHtml += '<div class="list-row"><div class="cell-title" style="font-size:12.5px;">Owed to you</div><span class="num" style="font-size:12.5px;font-weight:700;">'+formatMoney(loans.lentOutstanding)+'</span></div>';
+    snapHtml += '<div class="list-row"><div class="cell-title" style="font-size:12.5px;">You owe</div><span class="num" style="font-size:12.5px;font-weight:700;">'+formatMoney(loans.borrowedOutstanding)+'</span></div>';
+  }
   snapHtml += '</div>';
   snapEl.innerHTML = snapHtml;
 
@@ -2062,6 +2186,7 @@ function renderFinances(){
     kpiCardHtml({label:"ROI", value:fmtROI(fin.roi), iconName:"trend"}),
   ].join("");
   document.getElementById("finTxTable").innerHTML = txTableHtml(list, true);
+  renderLoansTab();
 }
 
 function exportTransactionsCsv(){
@@ -2074,6 +2199,61 @@ function exportTransactionsCsv(){
   const csv = rows.map(r=>r.map(csvEscape).join(",")).join("\n");
   downloadFile("transactions_"+todayISO()+".csv", csv, "text/csv");
   toast("Transactions exported");
+}
+
+/* ============================================================
+   14b. LOANS & DEBTS (money lent / borrowed — separate from P&L)
+   ============================================================ */
+function loanRowHtml(l){
+  const remaining = loanRemaining(l);
+  const repaid = loanRepaid(l);
+  const status = loanStatus(l);
+  const dirBadge = l.direction==="lent"
+    ? '<span class="badge badge-blue">You lent</span>'
+    : '<span class="badge badge-amber">You borrowed</span>';
+  const statusCls = status==="Repaid" ? "badge-green" : status==="Partially Repaid" ? "badge-blue" : "badge-neutral";
+  return '<tr class="row-clickable" onclick="openLoanModal(\''+l.id+'\')">'
+    + '<td><div class="cell-title">'+escapeHtml(l.counterparty||"(unnamed)")+'</div><div class="cell-sub">'+formatDate(l.date)+(l.dueDate?(' · due '+formatDate(l.dueDate)):'')+'</div></td>'
+    + '<td>'+dirBadge+'</td>'
+    + '<td class="num">'+formatMoney(l.amount)+'</td>'
+    + '<td class="num">'+formatMoney(repaid)+'</td>'
+    + '<td class="num" style="font-weight:700;">'+formatMoney(remaining)+'</td>'
+    + '<td><span class="badge '+statusCls+'">'+status+'</span></td>'
+    + '<td class="row-actions" onclick="event.stopPropagation()">'
+      + '<button class="btn btn-secondary btn-sm" onclick="openRepaymentModal(\''+l.id+'\')" '+(remaining<=0?'disabled':'')+'>Repayment</button>'
+      + '<button class="icon-btn btn-sm" style="width:30px;height:30px;" onclick="deleteLoanConfirm(\''+l.id+'\')">'+icon("trash")+'</button>'
+    + '</td>'
+    + '</tr>';
+}
+
+function getFilteredLoans(){
+  const dir = document.getElementById("loanFilterDirection").value;
+  const status = document.getElementById("loanFilterStatus").value;
+  return state.loans.filter(l=>{
+    if(dir && l.direction!==dir) return false;
+    if(status && loanStatus(l)!==status) return false;
+    return true;
+  });
+}
+
+function renderLoansTab(){
+  const summary = loansSummary();
+  document.getElementById("loanKpis").innerHTML = [
+    kpiCardHtml({label:"Owed To You", value:formatMoney(summary.lentOutstanding), iconName:"revenue", hero:true}),
+    kpiCardHtml({label:"You Owe", value:formatMoney(summary.borrowedOutstanding), iconName:"expense"}),
+    kpiCardHtml({label:"Net Position", value:formatMoney(summary.net), iconName:"net"}),
+    kpiCardHtml({label:"Open Records", value:state.loans.filter(l=>loanStatus(l)!=="Repaid").length, iconName:"box"}),
+  ].join("");
+
+  const list = getFilteredLoans();
+  const tableEl = document.getElementById("loanTable");
+  if(list.length===0){
+    tableEl.innerHTML = emptyInline(state.loans.length===0 ? "No loans or debts recorded yet." : "No records match these filters.", "net");
+    return;
+  }
+  const sorted = [...list].sort((a,b)=> new Date(b.date)-new Date(a.date));
+  tableEl.innerHTML = '<table class="data-table"><thead><tr><th>Counterparty</th><th>Direction</th><th>Amount</th><th>Repaid</th><th>Remaining</th><th>Status</th><th></th></tr></thead><tbody>'
+    + sorted.map(loanRowHtml).join("") + '</tbody></table>';
 }
 
 /* ============================================================
@@ -2200,6 +2380,7 @@ function buildReport(type, refId){
   let title="", html="", exportObj={};
   if(type==="overall"){
     const fin = getOverallFinancials();
+    const loans = loansSummary();
     title = "Overall Business Report — "+formatDate(todayISO());
     html = reportKvBlock("Business Summary", [
       ["Business", state.settings.businessName], ["Report date", formatDate(todayISO())],
@@ -2208,10 +2389,12 @@ function buildReport(type, refId){
       ["Total projects", state.projects.length], ["Active projects", state.projects.filter(p=>p.status==="Active").length],
       ["Total experiments", state.experiments.length], ["Running experiments", state.experiments.filter(e=>e.status==="Running").length],
       ["Total tasks", state.tasks.length], ["Completed tasks", state.tasks.filter(t=>t.status==="Completed").length],
+      ["Owed to you", formatMoney(loans.lentOutstanding)], ["You owe", formatMoney(loans.borrowedOutstanding)],
     ]);
     html += reportTableBlock("Projects", ["Name","Status","Revenue","Spending","Net","ROI"], state.projects.map(p=>{ const f=getProjectFinancials(p.id); return [p.name,p.status,formatMoney(f.revenue),formatMoney(f.spending),formatMoney(f.net),fmtROI(f.roi)]; }));
     html += reportTableBlock("Experiments", ["Name","Status","Revenue","Spending","Net","ROI"], state.experiments.map(e=>{ const f=getExperimentFinancials(e.id); return [e.name,e.status,formatMoney(f.revenue),formatMoney(f.spending),formatMoney(f.net),fmtROI(f.roi)]; }));
-    exportObj = {type,generatedAt:new Date().toISOString(),financials:fin,projects:state.projects,experiments:state.experiments};
+    html += reportTableBlock("Loans & Debts", ["Counterparty","Direction","Amount","Repaid","Remaining","Status"], state.loans.map(l=>[l.counterparty,l.direction==="lent"?"You lent":"You borrowed",formatMoney(l.amount),formatMoney(loanRepaid(l)),formatMoney(loanRemaining(l)),loanStatus(l)]));
+    exportObj = {type,generatedAt:new Date().toISOString(),financials:fin,projects:state.projects,experiments:state.experiments,loans:state.loans};
   } else if(type==="monthly"){
     const [y,m] = refId.split("-");
     const monthTx = state.transactions.filter(t=>t.date && t.date.startsWith(refId));
@@ -2285,6 +2468,12 @@ function applySettingsToChrome(){
   const initial = (state.settings.businessName||"B").trim().charAt(0).toUpperCase() || "B";
   document.getElementById("bizAvatar").textContent = initial;
   document.title = (state.settings.businessName || "Business Hub") + " — Business Hub";
+  applyTheme();
+}
+
+function applyTheme(){
+  const dark = state.settings.theme === "dark";
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
 }
 
 /* ============================================================
@@ -2612,6 +2801,114 @@ function refreshCurrentPage(){
   goPage(state.currentPage, {id: state.currentPage==="project-detail"?state.currentProjectId:state.currentExperimentId});
 }
 
+/* ---------- LOAN / DEBT MODAL ---------- */
+function openLoanModal(id){
+  const l = id ? findLoan(id) : null;
+  const isEdit = !!l;
+  const direction = l ? l.direction : "lent";
+  const html = `
+  <div class="modal">
+    <div class="modal-head"><h3>${isEdit?"Edit loan / debt":"Add loan / debt"}</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field full"><label>Direction *</label>
+          <select class="select" id="mlnDirection">
+            <option value="lent"${direction==="lent"?" selected":""}>You loaned money to someone</option>
+            <option value="borrowed"${direction==="borrowed"?" selected":""}>You borrowed money from someone</option>
+          </select>
+        </div>
+        <div class="field full"><label>Counterparty *</label><input class="input" id="mlnCounterparty" value="${escapeHtml(l?l.counterparty:"")}" placeholder="Who's involved?"><div class="form-error">Enter who this is with.</div></div>
+        <div class="field"><label>Amount (${currencySymbol()}) *</label><input type="number" min="0" step="0.01" class="input" id="mlnAmount" value="${l?l.amount:""}" placeholder="0"><div class="form-error">Enter an amount greater than 0.</div></div>
+        <div class="field"><label>Date *</label><input type="date" class="input" id="mlnDate" value="${l&&l.date?l.date:todayISO()}"></div>
+        <div class="field full"><label>Due date (optional)</label><input type="date" class="input" id="mlnDue" value="${l&&l.dueDate?l.dueDate:""}"></div>
+        <div class="field full" style="margin-bottom:0;"><label>Notes</label><textarea class="textarea" id="mlnNotes" placeholder="Optional notes">${escapeHtml(l?l.notes:"")}</textarea></div>
+      </div>
+      ${isEdit ? '<p class="hint" style="margin-top:4px;">Repaid so far: '+formatMoney(loanRepaid(l))+' · Remaining: '+formatMoney(loanRemaining(l))+'</p>' : '<p class="hint" style="margin-top:4px;">This is tracked separately from income &amp; expenses so it never affects your revenue or ROI.</p>'}
+    </div>
+    <div class="modal-foot">
+      ${isEdit?'<button class="btn btn-danger" style="margin-right:auto;" onclick="deleteLoanConfirm(\''+l.id+'\')">Delete</button>':''}
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLoanFromModal(${isEdit?`'${l.id}'`:'null'})">${isEdit?"Save changes":"Add record"}</button>
+    </div>
+  </div>`;
+  showModal(html);
+}
+
+async function saveLoanFromModal(id){
+  const counterparty = document.getElementById("mlnCounterparty").value.trim();
+  const amount = parseFloat(document.getElementById("mlnAmount").value);
+  let valid = true;
+  if(!counterparty){ fieldError("mlnCounterparty", true); valid=false; } else fieldError("mlnCounterparty", false);
+  if(!amount || amount<=0){ fieldError("mlnAmount", true); valid=false; } else fieldError("mlnAmount", false);
+  if(!valid){ toast("Please fix the highlighted fields","error"); return; }
+
+  const now = new Date().toISOString();
+  let l = id ? findLoan(id) : {id: uid("loan"), createdAt: now, repayments:[]};
+  l.direction = document.getElementById("mlnDirection").value;
+  l.counterparty = counterparty;
+  l.amount = amount;
+  l.date = document.getElementById("mlnDate").value || todayISO();
+  l.dueDate = document.getElementById("mlnDue").value;
+  l.notes = document.getElementById("mlnNotes").value.trim();
+  l.updatedAt = now;
+  if(!l.repayments) l.repayments = [];
+
+  await dbPut("loans", l);
+  if(!id) state.loans.push(l);
+  closeModal();
+  toast(id?"Record updated":"Loan / debt added successfully.");
+  refreshCurrentPage();
+}
+
+function deleteLoanConfirm(id){
+  const l = findLoan(id); if(!l) return;
+  openConfirmModal({
+    title:"Delete this record?",
+    body:'This permanently deletes the '+(l.direction==="lent"?"loan to ":"debt to ")+'"'+l.counterparty+'" and its repayment history.',
+    confirmLabel:"Delete record",
+    danger:true,
+    onConfirm: async ()=>{
+      await dbDelete("loans", id);
+      state.loans = state.loans.filter(x=>x.id!==id);
+      closeModal();
+      toast("Record deleted.");
+      refreshCurrentPage();
+    }
+  });
+}
+
+function openRepaymentModal(id){
+  const l = findLoan(id); if(!l) return;
+  const remaining = loanRemaining(l);
+  const html = `
+  <div class="modal modal-sm">
+    <div class="modal-head"><h3>Log repayment</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body">
+      <p class="hint" style="margin-bottom:12px;">${l.direction==="lent"?"Payment received from ":"Payment made to "}<b>${escapeHtml(l.counterparty)}</b> · remaining: ${formatMoney(remaining)}</p>
+      <div class="field full"><label>Date *</label><input type="date" class="input" id="mrpDate" value="${todayISO()}"></div>
+      <div class="field full"><label>Amount (${currencySymbol()}) *</label><input type="number" min="0" step="0.01" class="input" id="mrpAmount" value="${remaining}" placeholder="0"><div class="form-error">Enter an amount between 0 and the remaining balance.</div></div>
+      <div class="field full" style="margin-bottom:0;"><label>Notes</label><input class="input" id="mrpNotes" placeholder="Optional"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveRepayment('${id}')">Log repayment</button></div>
+  </div>`;
+  showModal(html);
+}
+
+async function saveRepayment(loanId){
+  const l = findLoan(loanId); if(!l) return;
+  const remaining = loanRemaining(l);
+  const amount = parseFloat(document.getElementById("mrpAmount").value);
+  if(!amount || amount<=0 || amount>remaining+0.0001){ fieldError("mrpAmount", true); toast("Enter a valid repayment amount","error"); return; }
+  fieldError("mrpAmount", false);
+  if(!l.repayments) l.repayments = [];
+  l.repayments.push({id: uid("rp"), date: document.getElementById("mrpDate").value || todayISO(), amount, notes: document.getElementById("mrpNotes").value.trim()});
+  l.updatedAt = new Date().toISOString();
+  await dbPut("loans", l);
+  closeModal();
+  toast("Repayment logged");
+  refreshCurrentPage();
+}
+
 /* ---------- TASK MODAL ---------- */
 function openTaskModal(id, presetLink){
   const t = id ? findTask(id) : null;
@@ -2858,12 +3155,14 @@ function runGlobalSearch(query){
   const expMatches = state.experiments.filter(e=> (e.name||"").toLowerCase().includes(q) || (e.hypothesis||"").toLowerCase().includes(q)).slice(0,5);
   const txMatches = state.transactions.filter(t=> (t.description||"").toLowerCase().includes(q) || (t.category||"").toLowerCase().includes(q)).slice(0,5);
   const taskMatches = state.tasks.filter(t=> (t.title||"").toLowerCase().includes(q)).slice(0,5);
+  const loanMatches = state.loans.filter(l=> (l.counterparty||"").toLowerCase().includes(q)).slice(0,5);
 
   const groups = [
     {label:"Projects", items:projMatches, render:(p)=>({title:p.name, sub:p.status, onclick:"openProject('"+p.id+"')"})},
     {label:"Experiments", items:expMatches, render:(e)=>({title:e.name, sub:e.status, onclick:"openExperiment('"+e.id+"')"})},
     {label:"Transactions", items:txMatches, render:(t)=>({title:t.description||t.category||"Transaction", sub:formatMoney(t.amount)+" · "+formatDate(t.date), onclick:"closeSearchAndOpenTx('"+t.id+"')"})},
     {label:"Tasks", items:taskMatches, render:(t)=>({title:t.title, sub:t.status, onclick:"closeSearchAndOpenTask('"+t.id+"')"})},
+    {label:"Loans & Debts", items:loanMatches, render:(l)=>({title:l.counterparty, sub:(l.direction==="lent"?"You lent ":"You borrowed ")+formatMoney(l.amount), onclick:"closeSearchAndOpenLoan('"+l.id+"')"})},
   ].filter(g=>g.items.length>0);
 
   if(groups.length===0){ resultsEl.innerHTML = '<div class="sr-empty">No results for "'+escapeHtml(query)+'"</div>'; resultsEl.classList.add("open"); return; }
@@ -2876,6 +3175,7 @@ function runGlobalSearch(query){
 }
 function closeSearchAndOpenTx(id){ closeSearchResults(); openTransactionModal(id); }
 function closeSearchAndOpenTask(id){ closeSearchResults(); goPage("tasks"); setTimeout(()=>openTaskModal(id), 50); }
+function closeSearchAndOpenLoan(id){ closeSearchResults(); goPage("finances"); setTimeout(()=>{ switchTab("finTabs","loans"); openLoanModal(id); }, 50); }
 function closeSearchResults(){ document.getElementById("searchResults").classList.remove("open"); document.getElementById("globalSearch").value=""; }
 
 /* ============================================================
@@ -2883,9 +3183,9 @@ function closeSearchResults(){ document.getElementById("searchResults").classLis
    ============================================================ */
 function exportAllData(){
   const payload = {
-    exportedAt: new Date().toISOString(), appVersion: 1,
+    exportedAt: new Date().toISOString(), appVersion: 2,
     projects: state.projects, experiments: state.experiments,
-    transactions: state.transactions, tasks: state.tasks, settings: state.settings,
+    transactions: state.transactions, tasks: state.tasks, loans: state.loans, settings: state.settings,
   };
   downloadFile("business-hub-backup_"+todayISO()+".json", JSON.stringify(payload, null, 2), "application/json");
   toast("Data exported");
@@ -2911,6 +3211,7 @@ async function handleImportFile(file){
         for(const e of arr("experiments")) await dbPut("experiments", e);
         for(const t of arr("transactions")) await dbPut("transactions", t);
         for(const t of arr("tasks")) await dbPut("tasks", t);
+        for(const l of arr("loans")) await dbPut("loans", l);
         if(data.settings) await dbPut("settings", {key:"app", value:data.settings});
         await loadAllData();
         applySettingsToChrome();
@@ -2927,12 +3228,12 @@ async function handleImportFile(file){
 function clearAllDataConfirm(){
   openConfirmModal({
     title:"Clear all data?",
-    body:"This permanently deletes every project, experiment, transaction, and task on this device. Export a backup first if you want to keep a copy.",
+    body:"This permanently deletes every project, experiment, transaction, task, and loan/debt record on this device. Export a backup first if you want to keep a copy.",
     confirmLabel:"Clear everything",
     danger:true,
     onConfirm: async ()=>{
       await dbClearAll();
-      state.projects=[]; state.experiments=[]; state.transactions=[]; state.tasks=[];
+      state.projects=[]; state.experiments=[]; state.transactions=[]; state.tasks=[]; state.loans=[];
       closeModal();
       toast("All data cleared.");
       goPage("dashboard");
@@ -3029,10 +3330,19 @@ async function seedDemoData(){
     {id:uid("task"), title:"Draft pricing page copy", description:"", projectId:null, experimentId:exp2.id, priority:"Low", dueDate:daysAgo(-5), status:"To Do", createdAt:daysAgo(9), updatedAt:daysAgo(9)},
   ];
 
+  const loans = [
+    {id:uid("loan"), direction:"lent", counterparty:"Chisomo (friend)", amount:20000, date:daysAgo(25), dueDate:daysAgo(-5), notes:"Helped with phone repair.",
+      repayments:[{id:uid("rp"), date:daysAgo(10), amount:8000, notes:"First installment"}], createdAt:daysAgo(25), updatedAt:daysAgo(10)},
+    {id:uid("loan"), direction:"borrowed", counterparty:"Uncle Thoko", amount:50000, date:daysAgo(40), dueDate:daysAgo(-20), notes:"Startup capital for CarVideoTool.",
+      repayments:[{id:uid("rp"), date:daysAgo(15), amount:20000, notes:""}], createdAt:daysAgo(40), updatedAt:daysAgo(15)},
+    {id:uid("loan"), direction:"lent", counterparty:"Grace M.", amount:5000, date:daysAgo(6), dueDate:"", notes:"", repayments:[], createdAt:daysAgo(6), updatedAt:daysAgo(6)},
+  ];
+
   for(const p of [proj1,proj2]) await dbPut("projects", p);
   for(const e of [exp1,exp2]) await dbPut("experiments", e);
   for(const t of tx) await dbPut("transactions", t);
   for(const t of tasks) await dbPut("tasks", t);
+  for(const l of loans) await dbPut("loans", l);
 
   await loadAllData();
   toast("Demo data loaded");
@@ -3124,6 +3434,11 @@ function wireEvents(){
     renderFinances();
   });
   document.getElementById("finExportCsvBtn").addEventListener("click", exportTransactionsCsv);
+
+  // Loans & Debts
+  document.getElementById("loanAddBtn").addEventListener("click", ()=>openLoanModal());
+  document.getElementById("loanFilterDirection").addEventListener("change", renderLoansTab);
+  document.getElementById("loanFilterStatus").addEventListener("change", renderLoansTab);
 
   // Tasks
   document.getElementById("tasksAddBtn").addEventListener("click", ()=>openTaskModal());
